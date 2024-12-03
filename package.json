@@ -13,11 +13,14 @@
   "dependencies": {
     "axios": "^1.7.8",
     "chart.js": "^4.4.7",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "pinia": "^2.2.6",
     "vue": "^3.5.13",
     "vue-axios": "^3.5.2",
     "vue-chartjs": "^5.3.2",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

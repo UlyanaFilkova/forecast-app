@@ -29,7 +29,6 @@ export default {
   computed: {
     chartData() {
       const historicalLabels = this.historicalData.map((_, index) => `Месяц ${index + 1}`)
-      console.log(this.historicalData.length)
       const forecastLabels = this.forecastData.map(
         (_, index) => `Месяц ${this.historicalData.length + index + 1}`,
       )

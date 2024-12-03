@@ -8,24 +8,32 @@
       <input type="radio" value="line" v-model="chartType" />
       Line Chart
     </label>
-    <component :is="currentChartType" :historical-data="historicalData" :forecast-data="forecastData" :chart-options="chartOptions" />
+    <label>
+      <input type="radio" value="table" v-model="chartType" />
+      Table
+    </label>
+    <component
+      :is="currentChartType"
+      :historical-data="historicalData"
+      :forecast-data="forecastData"
+      :chart-options="chartOptions"
+    />
   </div>
 </template>
 
 <script>
-import BarChart from './BarChart.vue';
-import LineChart from './LineChart.vue';
+import BarChart from './BarChart.vue'
+import LineChart from './LineChart.vue'
+import TableChart from './TableChart.vue'
 
 export default {
   name: 'ParentChart',
-  components: { BarChart, LineChart },
+  components: { BarChart, LineChart, TableChart },
   data() {
     return {
-      historicalData: [
-        100, 120, 130, 150, 170, 200, 220, 250, 270, 300, 320, 350,
-      ],
+      historicalData: [100, 120, 130, 150, 170, 200, 220, 250, 270, 300, 320, 350],
       forecastData: [380, 400, 420, 450],
-      chartType: 'bar', 
+      chartType: 'bar',
       chartOptions: {
         responsive: true,
         scales: {
@@ -39,14 +47,22 @@ export default {
           },
         },
       },
-    };
+    }
   },
   computed: {
     currentChartType() {
-      return this.chartType === 'line' ? 'LineChart' : 'BarChart'; 
+      switch (this.chartType) {
+        case 'line':
+          return 'LineChart'
+        case 'table':
+          return 'TableChart'
+        case 'bar':
+        default:
+          return 'BarChart'
+      }
     },
   },
-};
+}
 </script>
 
 <style scoped>
