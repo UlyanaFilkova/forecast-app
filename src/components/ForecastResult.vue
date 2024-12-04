@@ -1,13 +1,14 @@
 <template>
   <div class="chart__container">
     <label>
-      <input type="radio" value="bar" v-model="chartType" />
-      Bar Chart
-    </label>
-    <label>
       <input type="radio" value="line" v-model="chartType" />
       Line Chart
     </label>
+    <label>
+      <input type="radio" value="bar" v-model="chartType" />
+      Bar Chart
+    </label>
+
     <label>
       <input type="radio" value="table" v-model="chartType" />
       Table
@@ -33,7 +34,7 @@ export default {
     return {
       historicalData: [100, 120, 130, 150, 170, 200, 220, 250, 270, 300, 320, 350],
       forecastData: [380, 400, 420, 450],
-      chartType: 'bar',
+      chartType: 'line',
       chartOptions: {
         responsive: true,
         scales: {
