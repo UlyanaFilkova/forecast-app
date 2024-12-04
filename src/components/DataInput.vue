@@ -9,15 +9,41 @@
         <option value="method1">Метод 1</option>
         <option value="method2">Метод 2</option>
       </select>
-      <button type="submit">Прогнозировать</button>
+      <button type="submit">Загрузить данные</button>
     </form>
+    <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeModal">&times;</span>
+        <h3>Введенные данные</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Данные</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(line, index) in dataLines" :key="index">
+                <td v-for="(cell, cellIndex) in line.split(' ')" :key="cellIndex">{{ cell }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <label for="columnSelect">Выберите номер столбца с данными:</label>
+        <select v-model="selectedColumn" id="columnSelect">
+          <option v-for="i in numberOfColumns" :key="i" :value="i">{{ i }}</option>
+        </select>
+        <button @click="confirmColumnSelection">Подтвердить выбор</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { useStore } from '@/stores/store.js'
-import { required, helpers } from '@vuelidate/validators'
+import { required } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
+import * as XLSX from 'xlsx'
 
 export default {
   data() {
@@ -28,6 +54,9 @@ export default {
       file: null,
       fileError: '',
       forecastMethod: 'method1',
+      showModal: false,
+      dataLines: [],
+      selectedColumn: 1,
     }
   },
   validations() {
@@ -48,9 +77,11 @@ export default {
     }
   },
   computed: {
-    validationFile() {
-      return {
-        file: this.file,
+    numberOfColumns() {
+      if (this.dataLines[0]) {
+        return this.dataLines.length > 0 ? this.dataLines[0].split(' ').length : 0
+      } else {
+        return null
       }
     },
   },
@@ -60,7 +91,7 @@ export default {
       const file = event.target.files[0]
       this.file = file
       this.v$.file.$touch()
-      console.log(this.file)
+
       if (this.v$.file.$invalid) {
         if (this.v$.file.required.$invalid) {
           this.fileError = 'Загрузите файл или введите данные в текстовое поле'
@@ -69,16 +100,51 @@ export default {
         } else if (this.v$.file.maxSize.$invalid) {
           this.fileError = `Формат файла должен быть меньше ${this.MAX_FILE_SIZE_IN_BYTES / 1024 / 1024} MB.`
         }
-        console.log(this.fileError)
       } else {
         this.fileError = ''
-
+        if (file) {
+          const fileExtension = file.name.split('.').pop().toLowerCase()
+          if (fileExtension === 'txt') {
+            this.readTextFile(file)
+          } else if (fileExtension === 'xls' || fileExtension === 'xlsx') {
+            this.readExcelFile(file)
+          } else {
+            this.fileError = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
+          }
+        }
         const reader = new FileReader()
         reader.onload = (e) => {
           this.dataInput = e.target.result
+          this.dataLines = this.dataInput.split('\n')
+          console.log(this.dataLines[0])
+          
+          this.showModal = true
         }
         reader.readAsText(file)
       }
+    },
+    readTextFile(file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        this.dataInput = e.target.result
+
+        this.dataLines = this.dataInput.split('\n').map((line) => line.trim().split(' '))
+        this.showModal = true
+      }
+      reader.readAsText(file)
+    },
+    readExcelFile(file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result)
+        const workbook = XLSX.read(data, { type: 'array' })
+        const firstSheetName = workbook.SheetNames[0]
+        const worksheet = workbook.Sheets[firstSheetName]
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+        this.dataLines = jsonData // Сохраняем данные в dataLines
+        this.showModal = true
+      }
+      reader.readAsArrayBuffer(file)
     },
     submitData() {
       const data = {
@@ -86,9 +152,9 @@ export default {
         url: this.url,
         method: this.forecastMethod,
       }
-      const userStore = useStore()
-      userStore.setData(data)
-      this.$emit('data-submitted', data)
+      // const userStore = useStore()
+      // userStore.setData(data)
+      // this.$emit('data-submitted', data)
     },
   },
 }
