@@ -22,7 +22,11 @@
         <select v-model="selectedColumn" id="columnSelect">
           <option v-for="i in numberOfColumns" :key="i" :value="i">{{ i }}</option>
         </select>
-        <button @click="confirmColumnSelection">Подтвердить выбор</button>
+        <label for="skipRowsSelect">Сколько верхних строк пропустить:</label>
+        <select v-model="skipRows" id="skipRowsSelect">
+          <option v-for="i in numberOfRows" :key="i" :value="i - 1">{{ i - 1 }}</option>
+        </select>
+        <button @click="confirmSelection">Подтвердить выбор</button>
       </div>
     </div>
   </transition>
@@ -43,18 +47,23 @@ export default {
       type: Number,
       required: true,
     },
+    numberOfRows: {
+      type: Number,
+      required: true,
+    },
   },
   data() {
     return {
       selectedColumn: 1,
+      skipRows: 0,
     }
   },
   methods: {
     closeModal() {
       this.$emit('close')
     },
-    confirmColumnSelection() {
-      this.$emit('confirm', this.selectedColumn)
+    confirmSelection() {
+      this.$emit('confirm', this.selectedColumn, this.skipRows)
     },
   },
 }

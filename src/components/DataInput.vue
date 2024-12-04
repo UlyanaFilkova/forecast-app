@@ -11,31 +11,15 @@
       </select>
       <button type="submit">Загрузить данные</button>
     </form>
-    <div v-if="showModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <h3>Введенные данные</h3>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Данные</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(line, index) in dataLines" :key="index">
-                <td v-for="(cell, cellIndex) in line.split(' ')" :key="cellIndex">{{ cell }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <label for="columnSelect">Выберите номер столбца с данными:</label>
-        <select v-model="selectedColumn" id="columnSelect">
-          <option v-for="i in numberOfColumns" :key="i" :value="i">{{ i }}</option>
-        </select>
-        <button @click="confirmColumnSelection">Подтвердить выбор</button>
-      </div>
-    </div>
+    <TableModal
+      :isOpen="showModal"
+      :dataLines="dataLines"
+      :selectedColumn="selectedColumn"
+      :numberOfColumns="numberOfColumns"
+      :numberOfRows="this.dataLines.length"
+      @close="showModal = false"
+      @confirm="confirmSelection"
+    />
   </div>
 </template>
 
@@ -43,9 +27,13 @@
 import { useStore } from '@/stores/store.js'
 import { required } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
+import TableModal from './TableModal.vue'
 
 export default {
+  components: {
+    TableModal,
+  },
   data() {
     return {
       v$: useVuelidate(),
@@ -57,6 +45,7 @@ export default {
       showModal: false,
       dataLines: [],
       selectedColumn: 1,
+      skipRows: 0,
     }
   },
   validations() {
@@ -117,7 +106,7 @@ export default {
           this.dataInput = e.target.result
           this.dataLines = this.dataInput.split('\n')
           console.log(this.dataLines[0])
-          
+
           this.showModal = true
         }
         reader.readAsText(file)
@@ -135,16 +124,22 @@ export default {
     },
     readExcelFile(file) {
       const reader = new FileReader()
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const data = new Uint8Array(e.target.result)
-        const workbook = XLSX.read(data, { type: 'array' })
-        const firstSheetName = workbook.SheetNames[0]
-        const worksheet = workbook.Sheets[firstSheetName]
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-        this.dataLines = jsonData // Сохраняем данные в dataLines
-        this.showModal = true
+        const workbook = new ExcelJS.Workbook()
+
+        await workbook.xlsx.load(data)
+        const worksheet = workbook.worksheets[0]
+
+        this.dataLines = []
+        worksheet.eachRow((row, rowNumber) => {
+          const rowData = row.values.slice(1) // Убираем первый элемент, который содержит номер строки
+          this.dataLines.push(rowData.join(' ')) // Преобразуем строку в текст
+        })
+
+        this.showModal = true // Показываем модальное окно
       }
-      reader.readAsArrayBuffer(file)
+      reader.readAsArrayBuffer(file) // Читаем файл как ArrayBuffer
     },
     submitData() {
       const data = {
@@ -155,6 +150,13 @@ export default {
       // const userStore = useStore()
       // userStore.setData(data)
       // this.$emit('data-submitted', data)
+    },
+    confirmSelection(selectedColumn, skipRows) {
+      console.log('Выбранный столбец:', selectedColumn)
+      console.log('Выбранное число строк:', skipRows)
+      this.selectedColumn = selectedColumn
+      this.skipRows = skipRows
+      this.showModal = false
     },
   },
 }
