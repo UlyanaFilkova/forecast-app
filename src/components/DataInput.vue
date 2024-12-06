@@ -45,7 +45,7 @@ export default {
       showModal: false,
       dataLines: [],
       selectedColumn: 1,
-      skipRows: 0,
+      rowToStart: 1,
     }
   },
   validations() {
@@ -68,9 +68,9 @@ export default {
   computed: {
     numberOfColumns() {
       if (this.dataLines[0]) {
-        return this.dataLines.length > 0 ? this.dataLines[0].split(' ').length : 0
+        return this.dataLines.length > 0 ? this.dataLines[0].toString().split(' ').length : 0
       } else {
-        return null
+        return 0
       }
     },
   },
@@ -101,23 +101,20 @@ export default {
             this.fileError = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
           }
         }
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          this.dataInput = e.target.result
-          this.dataLines = this.dataInput.split('\n')
-          console.log(this.dataLines[0])
+        // const reader = new FileReader()
+        // reader.onload = (e) => {
+        //   this.dataLines = e.target.result.split('\n')
 
-          this.showModal = true
-        }
-        reader.readAsText(file)
+        //   // this.showModal = true
+        // }
+        // reader.readAsText(file)
       }
     },
     readTextFile(file) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        this.dataInput = e.target.result
-
-        this.dataLines = this.dataInput.split('\n').map((line) => line.trim().split(' '))
+        this.dataLines = e.target.result.split('\n').map(line => line.split(' '));
+      
         this.showModal = true
       }
       reader.readAsText(file)
@@ -134,12 +131,14 @@ export default {
         this.dataLines = []
         worksheet.eachRow((row, rowNumber) => {
           const rowData = row.values.slice(1) // Убираем первый элемент, который содержит номер строки
-          this.dataLines.push(rowData.join(' ')) // Преобразуем строку в текст
+          this.dataLines.push(rowData); 
         })
 
-        this.showModal = true // Показываем модальное окно
+        // this.showModal = true // Показываем модальное окно
       }
+
       reader.readAsArrayBuffer(file) // Читаем файл как ArrayBuffer
+      this.showModal = true // Показываем модальное окно
     },
     submitData() {
       const data = {
@@ -151,11 +150,11 @@ export default {
       // userStore.setData(data)
       // this.$emit('data-submitted', data)
     },
-    confirmSelection(selectedColumn, skipRows) {
+    confirmSelection(selectedColumn, rowToStart) {
       console.log('Выбранный столбец:', selectedColumn)
-      console.log('Выбранное число строк:', skipRows)
+      console.log('Выбранная строка:', rowToStart)
       this.selectedColumn = selectedColumn
-      this.skipRows = skipRows
+      this.rowToStart = rowToStart
       this.showModal = false
     },
   },

@@ -6,11 +6,6 @@
         <h3>Введенные данные</h3>
         <div class="table-container">
           <table>
-            <thead>
-              <tr>
-                <th v-for="(header, index) in headers" :key="index">{{ header }}</th>
-              </tr>
-            </thead>
             <tbody>
               <tr v-for="(line, index) in dataLines" :key="index">
                 <td v-for="(cell, cellIndex) in line" :key="cellIndex">{{ cell }}</td>
@@ -22,9 +17,9 @@
         <select v-model="selectedColumn" id="columnSelect">
           <option v-for="i in numberOfColumns" :key="i" :value="i">{{ i }}</option>
         </select>
-        <label for="skipRowsSelect">Сколько верхних строк пропустить:</label>
-        <select v-model="skipRows" id="skipRowsSelect">
-          <option v-for="i in numberOfRows" :key="i" :value="i - 1">{{ i - 1 }}</option>
+        <label for="rowToStartSelect">С какой строки начать:</label>
+        <select v-model="rowToStart" id="rowToStartSelect">
+          <option v-for="i in numberOfRows" :key="i" :value="i">{{ i }}</option>
         </select>
         <button @click="confirmSelection">Подтвердить выбор</button>
       </div>
@@ -43,6 +38,7 @@ export default {
       type: Array,
       required: true,
     },
+
     numberOfColumns: {
       type: Number,
       required: true,
@@ -55,7 +51,7 @@ export default {
   data() {
     return {
       selectedColumn: 1,
-      skipRows: 0,
+      rowToStart: 1,
     }
   },
   methods: {
@@ -63,7 +59,7 @@ export default {
       this.$emit('close')
     },
     confirmSelection() {
-      this.$emit('confirm', this.selectedColumn, this.skipRows)
+      this.$emit('confirm', this.selectedColumn, this.rowToStart)
     },
   },
 }
