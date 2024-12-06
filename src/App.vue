@@ -26,8 +26,8 @@ export default {
   },
   methods: {
     async handleDataSubmitted(data) {
-      const response = await this.$http.post('http://localhost:5000/predict', data)
-      this.chartData = response.data
+      // const response = await this.$http.post('http://localhost:5000/predict', data)
+      // this.chartData = response.data
     },
   },
 }

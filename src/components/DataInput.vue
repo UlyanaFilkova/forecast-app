@@ -14,7 +14,6 @@
     <TableModal
       :isOpen="showModal"
       :dataLines="dataLines"
-      :selectedColumn="selectedColumn"
       :numberOfColumns="numberOfColumns"
       :numberOfRows="this.dataLines.length"
       @close="showModal = false"
@@ -44,8 +43,9 @@ export default {
       forecastMethod: 'method1',
       showModal: false,
       dataLines: [],
-      selectedColumn: 1,
-      rowToStart: 1,
+      numberSelected: 1,
+      skipCells: 1,
+      readingDirection: 'column',
     }
   },
   validations() {
@@ -101,23 +101,16 @@ export default {
             this.fileError = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
           }
         }
-        // const reader = new FileReader()
-        // reader.onload = (e) => {
-        //   this.dataLines = e.target.result.split('\n')
-
-        //   // this.showModal = true
-        // }
-        // reader.readAsText(file)
       }
     },
     readTextFile(file) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        this.dataLines = e.target.result.split('\n').map(line => line.split(' '));
-      
-        this.showModal = true
+        this.dataLines = e.target.result.split('\n').map((line) => line.split(' '))
       }
+
       reader.readAsText(file)
+      this.showModal = true
     },
     readExcelFile(file) {
       const reader = new FileReader()
@@ -131,14 +124,12 @@ export default {
         this.dataLines = []
         worksheet.eachRow((row, rowNumber) => {
           const rowData = row.values.slice(1) // Убираем первый элемент, который содержит номер строки
-          this.dataLines.push(rowData); 
+          this.dataLines.push(rowData)
         })
-
-        // this.showModal = true // Показываем модальное окно
       }
 
-      reader.readAsArrayBuffer(file) // Читаем файл как ArrayBuffer
-      this.showModal = true // Показываем модальное окно
+      reader.readAsArrayBuffer(file)
+      this.showModal = true
     },
     submitData() {
       const data = {
@@ -146,16 +137,33 @@ export default {
         url: this.url,
         method: this.forecastMethod,
       }
-      // const userStore = useStore()
-      // userStore.setData(data)
-      // this.$emit('data-submitted', data)
     },
-    confirmSelection(selectedColumn, rowToStart) {
-      console.log('Выбранный столбец:', selectedColumn)
-      console.log('Выбранная строка:', rowToStart)
-      this.selectedColumn = selectedColumn
-      this.rowToStart = rowToStart
+    confirmSelection(numberSelected, skipCells, readingDirection) {
+      console.log('Выбранный столбец:', numberSelected)
+      console.log('Выбранная строка:', skipCells)
+      console.log('Направление:', readingDirection)
+      this.numberSelected = numberSelected
+      this.skipCells = skipCells
+      this.readingDirection = readingDirection
       this.showModal = false
+
+      let extractedData = []
+      if (readingDirection === 'row') {
+        const rowIndex = numberSelected - 1
+        if (this.dataLines[rowIndex]) {
+          extractedData = this.dataLines[rowIndex].slice(rowIndex + skipCells)
+        }
+      } else if (readingDirection === 'column') {
+        const columnIndex = numberSelected - 1
+        for (let i = skipCells; i < this.dataLines.length; i++) {
+          if (this.dataLines[i][columnIndex]) {
+            extractedData.push(this.dataLines[i][columnIndex])
+          }
+        }
+      }
+      const userStore = useStore()
+      userStore.setData(extractedData)
+      this.$emit('data-submitted', extractedData)
     },
   },
 }

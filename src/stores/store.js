@@ -1,5 +1,5 @@
 // store.js
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export const useStore = defineStore('userData', {
   state: () => ({
@@ -9,9 +9,7 @@ export const useStore = defineStore('userData', {
   }),
   actions: {
     setData(data) {
-      this.inputData = data.inputData;
-      this.url = data.url;
-      this.method = data.method;
+      this.inputData = data
     },
   },
-});
+})

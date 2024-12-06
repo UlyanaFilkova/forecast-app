@@ -3,22 +3,40 @@
     <div class="modal-backdrop" v-if="isOpen">
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
-        <h3>Введенные данные</h3>
+        <!-- <h3>Введенные данные</h3> -->
         <div class="table-container">
           <table>
+            <!-- <thead>
+              <tr>
+                <th>№</th>
+                <th>Данные</th>
+              </tr>
+            </thead> -->
             <tbody>
               <tr v-for="(line, index) in dataLines" :key="index">
+                <!-- <td>{{ index + 1 }}</td> -->
                 <td v-for="(cell, cellIndex) in line" :key="cellIndex">{{ cell }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <label for="columnSelect">Выберите номер столбца с данными:</label>
-        <select v-model="selectedColumn" id="columnSelect">
+        <div>
+          <label>Откуда считываем данные?</label>
+          <div>
+            <input type="radio" id="column" value="column" v-model="readingDirection" checked />
+            <label for="column">Из столбца</label>
+          </div>
+          <div>
+            <input type="radio" id="row" value="row" v-model="readingDirection" />
+            <label for="row">Из строки</label>
+          </div>
+        </div>
+        <label for="numberSelected">Выберите номер строки/столбца с данными:</label>
+        <select v-model="numberSelected" id="numberSelected">
           <option v-for="i in numberOfColumns" :key="i" :value="i">{{ i }}</option>
         </select>
-        <label for="rowToStartSelect">С какой строки начать:</label>
-        <select v-model="rowToStart" id="rowToStartSelect">
+        <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
+        <select v-model="skipCells" id="skipCellsSelect">
           <option v-for="i in numberOfRows" :key="i" :value="i">{{ i }}</option>
         </select>
         <button @click="confirmSelection">Подтвердить выбор</button>
@@ -50,8 +68,9 @@ export default {
   },
   data() {
     return {
-      selectedColumn: 1,
-      rowToStart: 1,
+      numberSelected: 1,
+      skipCells: 1,
+      readingDirection: 'column',
     }
   },
   methods: {
@@ -59,7 +78,7 @@ export default {
       this.$emit('close')
     },
     confirmSelection() {
-      this.$emit('confirm', this.selectedColumn, this.rowToStart)
+      this.$emit('confirm', this.numberSelected, this.skipCells, this.readingDirection)
     },
   },
 }
@@ -90,5 +109,9 @@ export default {
 .table-container {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.close {
+  cursor: pointer;
 }
 </style>
