@@ -138,31 +138,45 @@ export default {
         method: this.forecastMethod,
       }
     },
-    confirmSelection(numberSelected, skipCells, readingDirection) {
+    confirmSelection(numberSelected, skipCells, readingDirection, labelSelected) {
       console.log('Выбранный столбец:', numberSelected)
       console.log('Выбранная строка:', skipCells)
       console.log('Направление:', readingDirection)
+      console.log('labels:', labelSelected)
       this.numberSelected = numberSelected
       this.skipCells = skipCells
       this.readingDirection = readingDirection
       this.showModal = false
 
       let extractedData = []
+      let labels = []
+      const labelIndex = labelSelected - 1
+
       if (readingDirection === 'row') {
         const rowIndex = numberSelected - 1
+
         if (this.dataLines[rowIndex]) {
-          extractedData = this.dataLines[rowIndex].slice(rowIndex + skipCells)
+          extractedData = this.dataLines[rowIndex].slice(skipCells)
+          labels = this.dataLines[labelIndex].slice(skipCells)
         }
       } else if (readingDirection === 'column') {
         const columnIndex = numberSelected - 1
+
         for (let i = skipCells; i < this.dataLines.length; i++) {
           if (this.dataLines[i][columnIndex]) {
             extractedData.push(this.dataLines[i][columnIndex])
+            labels.push(this.dataLines[i][labelIndex])
           }
         }
       }
+
+      if (labelSelected === 0) {
+        labels = new Array(extractedData.length).fill('')
+      }
+
       const userStore = useStore()
       userStore.setData(extractedData)
+      userStore.setLabels(labels)
       this.$emit('data-submitted', extractedData)
     },
   },

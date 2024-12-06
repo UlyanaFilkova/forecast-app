@@ -3,18 +3,11 @@
     <div class="modal-backdrop" v-if="isOpen">
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
-        <!-- <h3>Введенные данные</h3> -->
+        <h3>Введенные данные</h3>
         <div class="table-container">
           <table>
-            <!-- <thead>
-              <tr>
-                <th>№</th>
-                <th>Данные</th>
-              </tr>
-            </thead> -->
             <tbody>
               <tr v-for="(line, index) in dataLines" :key="index">
-                <!-- <td>{{ index + 1 }}</td> -->
                 <td v-for="(cell, cellIndex) in line" :key="cellIndex">{{ cell }}</td>
               </tr>
             </tbody>
@@ -33,12 +26,21 @@
         </div>
         <label for="numberSelected">Выберите номер строки/столбца с данными:</label>
         <select v-model="numberSelected" id="numberSelected">
-          <option v-for="i in numberOfColumns" :key="i" :value="i">{{ i }}</option>
+          <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">
+            {{ i }}
+          </option>
         </select>
         <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
         <select v-model="skipCells" id="skipCellsSelect">
-          <option v-for="i in numberOfRows" :key="i" :value="i">{{ i }}</option>
+          <option v-for="i in numberOfRows" :key="i" :value="i-1">{{ i-1 }}</option>
         </select>
+        <label for="labelSelected"
+          >Выберите номер строки/столбца с подписями. 0 - нет подписей:</label
+        >
+        <select v-model="labelSelected" id="labelSelected">
+          <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">{{ i }}</option>
+        </select>
+
         <button @click="confirmSelection">Подтвердить выбор</button>
       </div>
     </div>
@@ -69,16 +71,28 @@ export default {
   data() {
     return {
       numberSelected: 1,
-      skipCells: 1,
+      skipCells: 0,
       readingDirection: 'column',
+      labelSelected: 0,
     }
+  },
+  computed: {
+    numberOfRowsOrColumns() {
+      return this.readingDirection === 'row' ? this.numberOfRows : this.numberOfColumns
+    },
   },
   methods: {
     closeModal() {
       this.$emit('close')
     },
     confirmSelection() {
-      this.$emit('confirm', this.numberSelected, this.skipCells, this.readingDirection)
+      this.$emit(
+        'confirm',
+        this.numberSelected,
+        this.skipCells,
+        this.readingDirection,
+        this.labelSelected,
+      )
     },
   },
 }
