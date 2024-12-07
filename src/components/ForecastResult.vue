@@ -1,18 +1,26 @@
 <template>
+  <h2>Результаты прогнозирования</h2>
   <div class="chart__container">
-    <label>
-      <input type="radio" value="line" v-model="chartType" />
-      Line Chart
-    </label>
-    <label>
-      <input type="radio" value="bar" v-model="chartType" />
-      Bar Chart
-    </label>
-
-    <label>
-      <input type="radio" value="table" v-model="chartType" />
-      Table
-    </label>
+    <div class="chart-options-container">
+      <div class="radio-container">
+        <label>
+          <input type="radio" value="line" v-model="chartType" />
+          Line Chart
+        </label>
+        <label>
+          <input type="radio" value="bar" v-model="chartType" />
+          Bar Chart
+        </label>
+        <label>
+          <input type="radio" value="table" v-model="chartType" />
+          Table
+        </label>
+      </div>
+      <div class="buttons-container">
+        <button @click="downloadPDF">Скачать PDF</button>
+        <button @click="downloadExcel">Скачать Excel</button>
+      </div>
+    </div>
     <component
       :is="currentChartType"
       :historical-data="historicalData"
@@ -71,5 +79,47 @@ export default {
   width: 100%;
   overflow-x: auto;
   white-space: nowrap;
+}
+
+.chart-options-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.radio-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.buttons-container {
+  display: flex;
+  gap: 30px;
+}
+h2 {
+  text-align: center;
+}
+
+label {
+  cursor: pointer;
+}
+
+input[type='radio'] {
+  cursor: pointer;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+button:hover {
+  background-color: #0056b3;
 }
 </style>

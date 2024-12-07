@@ -191,7 +191,7 @@ export default {
 <style scoped>
 form {
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 .data-input {
   background-color: #f9f9f9;
