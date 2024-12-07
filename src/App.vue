@@ -40,6 +40,7 @@ export default {
   padding: 20px;
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
+  border-radius: 10px;
 }
 
 header {
@@ -51,7 +52,8 @@ header {
 }
 
 h1 {
-  margin: 0;
+  margin: 0 0 30px 0;
+  text-align: center;
 }
 
 nav {

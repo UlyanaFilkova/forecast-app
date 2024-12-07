@@ -2,14 +2,19 @@
   <div>
     <h2>Введите данные</h2>
     <form @submit.prevent="submitData">
-      <textarea v-model="dataInput" placeholder="Введите данные..."></textarea>
-      <input type="file" @change="handleFileUpload" />
-      <span v-if="fileError" class="error">{{ fileError }}</span>
-      <select v-model="forecastMethod">
-        <option value="method1">Метод 1</option>
-        <option value="method2">Метод 2</option>
-      </select>
-      <button type="submit">Загрузить данные</button>
+      <textarea
+        v-model="dataInput"
+        placeholder="Введите текст здесь или прикрепите файл"
+      ></textarea>
+      <div class="file-input-container">
+        <input type="file" @change="handleFileUpload" />
+        <span v-if="fileError" class="error">{{ fileError }}</span>
+        <select v-model="forecastMethod">
+          <option value="method1">Метод 1</option>
+          <option value="method2">Метод 2</option>
+        </select>
+        <button type="submit">Загрузить данные</button>
+      </div>
     </form>
     <TableModal
       :isOpen="showModal"
@@ -184,6 +189,10 @@ export default {
 </script>
 
 <style scoped>
+form {
+  width: 100%;
+  margin-bottom: 30px;
+}
 .data-input {
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -194,14 +203,28 @@ export default {
 
 textarea {
   width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
   height: 100px;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 10px;
   font-size: 16px;
   resize: none;
+  outline: none;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+textarea:focus {
+  outline: 2px solid #3898ff;
+  border: 1px solid #ffffff;
+}
+textarea::placeholder {
+  font-size: 16px;
 }
 
+input::file-selector-button,
 button {
   background-color: #007bff;
   color: white;
@@ -214,7 +237,35 @@ button {
   transition: background-color 0.3s;
 }
 
+input::file-selector-button:hover,
 button:hover {
   background-color: #0056b3;
+}
+
+.file-input-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+input[type='file'] {
+  width: 300px;
+}
+
+input::file-selector-button {
+  margin-right: 20px;
+}
+
+select {
+  padding: 5px 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
 }
 </style>
