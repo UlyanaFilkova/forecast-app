@@ -4,6 +4,7 @@
     <form @submit.prevent="submitData">
       <textarea
         v-model="dataInput"
+        @change="handleTextAreaUpload"
         placeholder="Введите текст здесь или прикрепите файл"
       ></textarea>
       <div class="file-input-container">
@@ -13,7 +14,7 @@
           <option value="method1">Метод 1</option>
           <option value="method2">Метод 2</option>
         </select>
-        <button type="submit">Загрузить данные</button>
+        <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
       </div>
     </form>
     <TableModal
@@ -49,8 +50,8 @@ export default {
       showModal: false,
       dataLines: [],
       numberSelected: 1,
-      skipCells: 1,
-      readingDirection: 'column',
+      skipCells: 0,
+      readingDirection: 'row',
     }
   },
   validations() {
@@ -78,9 +79,23 @@ export default {
         return 0
       }
     },
+    isSubmitButtonDisabled() {
+      return this.dataInput.length === 0
+      // return this.dataLines.length === 0 || this.dataLines.every((item) => item.length === 0)
+    },
   },
 
   methods: {
+    handleTextAreaUpload(event) {
+      console.log(event.target.value)
+      this.dataLines[0] = this.dataInput.split(' ')
+      console.log(this.dataLines)
+
+      const userStore = useStore()
+      userStore.setData(this.dataLines[0])
+      userStore.setLabels('')
+      this.$emit('data-submitted', this.dataLines[0])
+    },
     handleFileUpload(event) {
       const file = event.target.files[0]
       this.file = file
@@ -138,14 +153,13 @@ export default {
     },
     submitData() {
       const data = {
-        inputData: this.dataInput,
         url: this.url,
         method: this.forecastMethod,
       }
     },
     confirmSelection(numberSelected, skipCells, readingDirection, labelSelected) {
-      console.log('Выбранный столбец:', numberSelected)
-      console.log('Выбранная строка:', skipCells)
+      console.log('Выбранный столбец/строка:', numberSelected)
+      console.log('Сколько пропустить:', skipCells)
       console.log('Направление:', readingDirection)
       console.log('labels:', labelSelected)
       this.numberSelected = numberSelected
@@ -242,6 +256,11 @@ button:hover {
   background-color: #0056b3;
 }
 
+button:disabled {
+  cursor: auto;
+  background-color: #889;
+}
+
 .file-input-container {
   display: flex;
   align-items: center;
@@ -260,7 +279,7 @@ input::file-selector-button {
 select {
   padding: 5px 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #777;
   border-radius: 5px;
   cursor: pointer;
 }
