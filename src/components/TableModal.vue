@@ -32,13 +32,7 @@
         </select>
         <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
         <select v-model="skipCells" id="skipCellsSelect">
-          <option v-for="i in numberOfRows" :key="i" :value="i-1">{{ i-1 }}</option>
-        </select>
-        <label for="labelSelected"
-          >Выберите номер строки/столбца с подписями. 0 - нет подписей:</label
-        >
-        <select v-model="labelSelected" id="labelSelected">
-          <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">{{ i }}</option>
+          <option v-for="i in numberOfRows" :key="i" :value="i - 1">{{ i - 1 }}</option>
         </select>
 
         <button @click="confirmSelection">Подтвердить выбор</button>

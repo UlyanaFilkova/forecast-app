@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Введите данные</h2>
-    <form @submit.prevent="submitData">
+    <form @submit.prevent="submitForm">
       <textarea
         v-model="dataInput"
         @change="handleTextAreaUpload"
@@ -11,9 +11,10 @@
         <input type="file" @change="handleFileUpload" />
         <span v-if="fileError" class="error">{{ fileError }}</span>
         <select v-model="forecastMethod">
-          <option value="exponential_smoothing">Метод экспоненциального сглаживания</option>
           <option value="linear_regression">Метод простой линейной регрессии</option>
           <option value="arima">Метод ARIMA</option>
+          <option value="random_forest">Метод случайных лесов</option>
+          <option value="knn">Метод KNN</option>
         </select>
         <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
       </div>
@@ -47,7 +48,7 @@ export default {
       dataInput: '',
       file: null,
       fileError: '',
-      forecastMethod: 'exponential_smoothing',
+      forecastMethod: 'arima',
       showModal: false,
       dataLines: [],
       numberSelected: 1,
@@ -81,24 +82,32 @@ export default {
       }
     },
     isSubmitButtonDisabled() {
-      return this.dataInput.length === 0
+      return this.dataInput.length === 0 && this.dataLines.length === 0
       // return this.dataLines.length === 0 || this.dataLines.every((item) => item.length === 0)
     },
   },
 
   methods: {
+    submitForm() {
+      const userStore = useStore()
+      userStore.setMethod(this.forecastMethod)
+      this.$emit('data-submitted')
+    },
     handleTextAreaUpload(event) {
       console.log(event.target.value)
-      this.dataLines[0] = this.dataInput.split(' ')
-      console.log(this.dataLines)
+      ;(this.dataLines[0] = this.dataInput
+        .split(' ')
+        .map((item) => item.trim().replace(/\r/g, ''))
+        .filter((item) => item !== '')),
+        console.log(this.dataLines)
 
       const userStore = useStore()
       userStore.setData(this.dataLines[0])
       userStore.setLabels('')
       userStore.setMethod(this.forecastMethod)
-      this.$emit('data-submitted')
     },
     handleFileUpload(event) {
+      this.dataInput = ''
       const file = event.target.files[0]
       this.file = file
       this.v$.file.$touch()
@@ -128,7 +137,13 @@ export default {
     readTextFile(file) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        this.dataLines = e.target.result.split('\n').map((line) => line.split(' '))
+        console.log(e.target.result)
+        this.dataLines = e.target.result.split('\n').map((line) =>
+          line
+            .split(' ')
+            .map((item) => item.trim().replace(/\r/g, ''))
+            .filter((item) => item !== ''),
+        )
       }
 
       reader.readAsText(file)
@@ -153,7 +168,7 @@ export default {
       reader.readAsArrayBuffer(file)
       this.showModal = true
     },
-   
+
     confirmSelection(numberSelected, skipCells, readingDirection, labelSelected) {
       console.log('Выбранный столбец/строка:', numberSelected)
       console.log('Сколько пропустить:', skipCells)
@@ -173,7 +188,9 @@ export default {
 
         if (this.dataLines[rowIndex]) {
           extractedData = this.dataLines[rowIndex].slice(skipCells)
-          labels = this.dataLines[labelIndex].slice(skipCells)
+          labels = this.dataLines[labelIndex]
+            ? this.dataLines[labelIndex].slice(skipCells)
+            : Array(extractedData.length).fill('')
         }
       } else if (readingDirection === 'column') {
         const columnIndex = numberSelected - 1
@@ -185,6 +202,7 @@ export default {
           }
         }
       }
+      console.log(extractedData)
 
       if (labelSelected === 0) {
         labels = new Array(extractedData.length).fill('')
@@ -192,9 +210,8 @@ export default {
 
       const userStore = useStore()
       userStore.setData(extractedData)
-      userStore.setData(this.forecastMethod)
+      userStore.setMethod(this.forecastMethod)
       userStore.setLabels(labels)
-      this.$emit('data-submitted')
     },
   },
 }
