@@ -53,7 +53,7 @@ export default {
       dataLines: [],
       numberSelected: 1,
       skipCells: 0,
-      readingDirection: 'row',
+      readingDirection: 'column',
     }
   },
   validations() {
@@ -108,6 +108,11 @@ export default {
     },
     handleFileUpload(event) {
       this.dataInput = ''
+      this.file = null
+      this.fileError = ''
+      this.numberSelected = 1
+      this.skipCells = 0
+      this.readingDirection = ''
       const file = event.target.files[0]
       this.file = file
       this.v$.file.$touch()
@@ -262,7 +267,7 @@ button {
   padding: 10px 15px;
   cursor: pointer;
   font-size: 16px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   transition: background-color 0.3s;
 }
 
@@ -279,8 +284,9 @@ button:disabled {
 .file-input-container {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   justify-content: space-between;
+  margin-top: 10px;
 }
 
 input[type='file'] {
@@ -288,7 +294,7 @@ input[type='file'] {
 }
 
 input::file-selector-button {
-  margin-right: 20px;
+  margin-right: 15px;
 }
 
 select {

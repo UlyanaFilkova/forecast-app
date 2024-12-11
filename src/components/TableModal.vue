@@ -90,6 +90,21 @@ export default {
         this.labelSelected,
       )
     },
+    resetData() {
+      // Сброс значений до дефолтных
+      this.numberSelected = 1;
+      this.skipCells = 0;
+      this.readingDirection = 'column';
+      this.labelSelected = 0;
+    },
+  },
+  watch: {
+    isOpen(newValue) {
+      if (newValue) {
+        // Сброс данных до дефолтных значений при открытии модального окна
+        this.resetData();
+      }
+    },
   },
 }
 </script>
