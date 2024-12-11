@@ -1,7 +1,6 @@
 <template>
   <div>
-    <button @click="downloadPDF">Скачать PDF</button>
-    <button @click="downloadExcel">Скачать Excel</button>
+    
     <table>
       <thead>
         <tr>
@@ -102,4 +101,6 @@ td {
 th {
   background-color: #f2f2f2;
 }
+
+
 </style>

@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { useStore } from '@/stores/store.js'
 import DataInput from './components/DataInput.vue'
 import ForecastChart from './components/ForecastResult.vue'
 import Theory from './components/TheorySources.vue'
@@ -25,9 +26,20 @@ export default {
     }
   },
   methods: {
-    async handleDataSubmitted(data) {
-      const response = await this.$http.post('http://localhost:5000/predict', data)
-      this.chartData = response.data
+    async handleDataSubmitted() {
+      const userStore = useStore()
+
+      const requestData = {
+        method: userStore.method,
+        data: userStore.inputData,
+        forecast_steps: 5,
+      }
+      try {
+        const response = await this.$http.post('http://localhost:5000/forecast', requestData)
+        this.chartData = response.data.forecast
+      } catch (error) {
+        console.error('Ошибка при запросе данных:', error)
+      }
     },
   },
 }
@@ -40,6 +52,7 @@ export default {
   padding: 20px;
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
+  border-radius: 10px;
 }
 
 header {
@@ -51,7 +64,8 @@ header {
 }
 
 h1 {
-  margin: 0;
+  margin: 0 0 30px 0;
+  text-align: center;
 }
 
 nav {

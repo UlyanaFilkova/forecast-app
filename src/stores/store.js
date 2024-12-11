@@ -1,17 +1,21 @@
 // store.js
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export const useStore = defineStore('userData', {
   state: () => ({
     inputData: '',
-    url: '',
-    method: 'method1',
+    labels: [],
+    method: '',
   }),
   actions: {
     setData(data) {
-      this.inputData = data.inputData;
-      this.url = data.url;
-      this.method = data.method;
+      this.inputData = data
+    },
+    setMethod(method) {
+      this.method = method
+    },
+    setLabels(labels) {
+      this.labels = labels
     },
   },
-});
+})
