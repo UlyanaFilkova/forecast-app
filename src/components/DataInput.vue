@@ -107,6 +107,7 @@ export default {
       userStore.setMethod(this.forecastMethod)
     },
     handleFileUpload(event) {
+      this.dataInput = ''
       const file = event.target.files[0]
       this.file = file
       this.v$.file.$touch()

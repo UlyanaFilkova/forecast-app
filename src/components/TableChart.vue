@@ -4,19 +4,19 @@
     <table>
       <thead>
         <tr>
-          <th>Месяц</th>
+          <th></th>
           <th>Исторические данные</th>
           <th>Прогноз</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(value, index) in historicalData" :key="index">
-          <td>Месяц {{ index + 1 }}</td>
+          <td>{{ index + 1 }}</td>
           <td>{{ value }}</td>
           <td>-</td>
         </tr>
         <tr v-for="(value, index) in forecastData" :key="historicalData.length + index">
-          <td>Месяц {{ historicalData.length + index + 1 }}</td>
+          <td>{{ historicalData.length + index + 1 }}</td>
           <td>-</td>
           <td>{{ value }}</td>
         </tr>
