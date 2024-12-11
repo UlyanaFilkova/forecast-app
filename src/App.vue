@@ -2,8 +2,7 @@
   <div id="app">
     <h1>Прогнозирование данных</h1>
     <DataInput @data-submitted="handleDataSubmitted" />
-    <ForecastChart />
-    <!-- <ForecastChart v-if="chartData" :data="chartData" /> -->
+    <ForecastResult v-if="chartData" />
     <Theory />
   </div>
 </template>
@@ -11,13 +10,13 @@
 <script>
 import { useStore } from '@/stores/store.js'
 import DataInput from './components/DataInput.vue'
-import ForecastChart from './components/ForecastResult.vue'
+import ForecastResult from './components/ForecastResult.vue'
 import Theory from './components/TheorySources.vue'
 
 export default {
   components: {
     DataInput,
-    ForecastChart,
+    ForecastResult,
     Theory,
   },
   data() {
@@ -38,7 +37,6 @@ export default {
       console.log(requestData)
       try {
         const response = await this.$http.post('http://localhost:5000/forecast', requestData)
-        // console.log(response)
         this.chartData = response.data.forecast
         userStore.setChartData(this.chartData)
       } catch (error) {
@@ -51,7 +49,7 @@ export default {
 
 <style>
 #app {
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
