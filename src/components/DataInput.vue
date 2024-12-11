@@ -11,9 +11,10 @@
         <input type="file" @change="handleFileUpload" />
         <span v-if="fileError" class="error">{{ fileError }}</span>
         <select v-model="forecastMethod">
-          <option value="exponential_smoothing">Метод экспоненциального сглаживания</option>
           <option value="linear_regression">Метод простой линейной регрессии</option>
           <option value="arima">Метод ARIMA</option>
+          <option value="random_forest">Метод случайных лесов</option>
+          <option value="knn">Метод KNN</option>
         </select>
         <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
       </div>
@@ -47,7 +48,7 @@ export default {
       dataInput: '',
       file: null,
       fileError: '',
-      forecastMethod: 'exponential_smoothing',
+      forecastMethod: 'arima',
       showModal: false,
       dataLines: [],
       numberSelected: 1,
@@ -88,12 +89,17 @@ export default {
 
   methods: {
     submitForm() {
+      const userStore = useStore()
+      userStore.setMethod(this.forecastMethod)
       this.$emit('data-submitted')
     },
     handleTextAreaUpload(event) {
       console.log(event.target.value)
-      this.dataLines[0] = this.dataInput.split(' ')
-      console.log(this.dataLines)
+      ;(this.dataLines[0] = this.dataInput
+        .split(' ')
+        .map((item) => item.trim().replace(/\r/g, ''))
+        .filter((item) => item !== '')),
+        console.log(this.dataLines)
 
       const userStore = useStore()
       userStore.setData(this.dataLines[0])

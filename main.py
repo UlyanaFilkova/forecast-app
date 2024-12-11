@@ -3,29 +3,31 @@ from flask_cors import CORS
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 
 
-# Метод экспоненциального сглаживания
-def exponential_smoothing_forecast(data, smoothing_factor):
-    """
-    Прогнозирование с использованием метода экспоненциального сглаживания (ручная реализация).
+# # Метод экспоненциального сглаживания
+# def exponential_smoothing_forecast(data, smoothing_factor):
+#     """
+#     Прогнозирование с использованием метода экспоненциального сглаживания (ручная реализация).
 
-    :param data: Массив чисел (исторические данные).
-    :param smoothing_factor: Сглаживающий фактор (alpha).
-    :return: Сглаженные значения.
-    """
+#     :param data: Массив чисел (исторические данные).
+#     :param smoothing_factor: Сглаживающий фактор (alpha).
+#     :return: Сглаженные значения.
+#     """
 
-    N = len(data)  # Число периодов
-    smoothed_values = [0] * (N + 1)  # Массив для сглаженных значений
-    smoothed_values[0] = data[0]  # Начальное значение
+#     N = len(data)  # Число периодов
+#     smoothed_values = [0] * (N + 1)  # Массив для сглаженных значений
+#     smoothed_values[0] = data[0]  # Начальное значение
 
-    # Расчет сглаженных значений
-    for i in range(1, N + 1):
-        smoothed_values[i] = smoothing_factor * data[i - 1] + (1 - smoothing_factor) * smoothed_values[i - 1]
+#     # Расчет сглаженных значений
+#     for i in range(1, N + 1):
+#         smoothed_values[i] = smoothing_factor * data[i - 1] + (1 - smoothing_factor) * smoothed_values[i - 1]
 
-    return [smoothed_values[N]]
+#     return [smoothed_values[N]]
 
 # Метод простой линейной регрессии
 def linear_regression_forecast(data, forecast_steps):
@@ -69,6 +71,64 @@ def arima_forecast(data, forecast_steps, order=(1, 1, 1)):
 
     return forecast.tolist()
 
+# Метод случайных лесов
+def random_forest_forecast(data, forecast_steps):
+    """
+    Прогнозирование с использованием случайного леса (Random Forest) на несколько шагов.
+    """
+    # Подготовка данных для обучения модели
+    x = np.arange(len(data)).reshape(-1, 1)  # Изначальные индексы
+    y = np.array(data)
+
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(x, y)
+
+    predictions = []
+    current_data = data.copy()
+
+    # Прогнозируем будущие шаги
+    for i in range(forecast_steps):
+        # Обновляем x и y для прогноза следующего шага
+        x_current = np.arange(len(current_data)).reshape(-1, 1)  # Индексы на основе текущих данных
+        y_current = np.array(current_data)  # Текущие данные для предсказания
+    
+
+        model.fit(x_current, y_current)  # Обучаем модель на обновленных данных
+        next_prediction = model.predict([[len(current_data)]])[0]  # Прогнозируем следующее значение
+
+        predictions.append(next_prediction)
+        current_data.append(next_prediction)  # Добавляем прогноз в текущие данные для следующего шага
+
+    return predictions
+
+# Метод KNN (k-Nearest Neighbors)
+def knn_forecast(data, forecast_steps, n_neighbors=3):
+    """
+    Прогнозирование с использованием метода ближайших соседей (KNN) на несколько шагов.
+    """
+    # Подготовка данных для обучения модели
+    x = np.arange(len(data)).reshape(-1, 1)  # Изначальные индексы
+    y = np.array(data)
+
+    model = KNeighborsRegressor(n_neighbors=n_neighbors)
+    model.fit(x, y)
+
+    predictions = []
+    current_data = data.copy()
+
+    # Прогнозируем будущие шаги
+    for i in range(forecast_steps):
+        # Обновляем x и y для прогноза следующего шага
+        x_current = np.arange(len(current_data)).reshape(-1, 1)  # Индексы на основе текущих данных
+        y_current = np.array(current_data)  # Текущие данные для предсказания
+
+        model.fit(x_current, y_current)  # Обучаем модель на обновленных данных
+        next_prediction = model.predict([[len(current_data)]])[0]  # Прогнозируем следующее значение
+
+        predictions.append(next_prediction)
+        current_data.append(next_prediction)  # Добавляем прогноз в текущие данные для следующего шага
+
+    return predictions
 
 app = Flask(__name__)
 CORS(app)
@@ -90,19 +150,21 @@ def forecast():
 
         print("Received data:", data)
         print("Received method:", method)
-        if not data or method not in ['exponential_smoothing', 'linear_regression','arima']:
+        if not data or method not in ['knn', 'linear_regression','arima', 'random_forest']:
             return jsonify({"error": "Invalid input"}), 400
 
-        if method == 'exponential_smoothing':
-            smoothing_factor = request_data.get('smoothing_factor', 0.8)
-            forecast = exponential_smoothing_forecast(data, smoothing_factor)
-            print(forecast)
-        elif method == 'linear_regression':
+ 
+        if method == 'linear_regression':
             forecast = linear_regression_forecast(data, forecast_steps)
   
         elif method == 'arima':
             order = request_data.get('order', (1, 1, 1))
             forecast = arima_forecast(data, forecast_steps, order)
+        elif method == 'random_forest':
+            forecast = random_forest_forecast(data, forecast_steps)
+        elif method == 'knn':
+            n_neighbors = request_data.get('n_neighbors', 3)
+            forecast = knn_forecast(data, forecast_steps, n_neighbors)
 
         return jsonify({"forecast": forecast})
     except Exception as e:
@@ -110,20 +172,3 @@ def forecast():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-# Пример использования
-# if __name__ == "__main__":
-#     historical_data = [100, 105, 110, 120, 125, 130, 135, 140]  # Исторические данные
-#     steps_to_forecast = 5  # Количество шагов для прогнозирования
-
-#     # Экспоненциальное сглаживание
-#     es_predictions = exponential_smoothing_forecast(historical_data, 0.8)
-#     print("Прогноз с использованием экспоненциального сглаживания:", es_predictions)
-
-#     # Линейная регрессия
-#     lr_predictions = linear_regression_forecast(historical_data, steps_to_forecast)
-#     print("Прогноз с использованием линейной регрессии:", lr_predictions)
-
-#     # ARIMA
-#     arima_predictions = arima_forecast(historical_data, steps_to_forecast)
-#     print("Прогноз с использованием ARIMA:", arima_predictions)

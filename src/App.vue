@@ -35,7 +35,7 @@ export default {
         data: userStore.inputData,
         forecast_steps: 5,
       }
-      // console.log(requestData)
+      console.log(requestData)
       try {
         const response = await this.$http.post('http://localhost:5000/forecast', requestData)
         // console.log(response)
