@@ -16,8 +16,6 @@ def exponential_smoothing_forecast(data, smoothing_factor):
     :param smoothing_factor: Сглаживающий фактор (alpha).
     :return: Сглаженные значения.
     """
-    print(data)
-    print(smoothing_factor)
 
     N = len(data)  # Число периодов
     smoothed_values = [0] * (N + 1)  # Массив для сглаженных значений
@@ -98,6 +96,7 @@ def forecast():
         if method == 'exponential_smoothing':
             smoothing_factor = request_data.get('smoothing_factor', 0.8)
             forecast = exponential_smoothing_forecast(data, smoothing_factor)
+            print(forecast)
         elif method == 'linear_regression':
             forecast = linear_regression_forecast(data, forecast_steps)
   

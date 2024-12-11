@@ -27,6 +27,7 @@ export default {
   },
   methods: {
     async handleDataSubmitted() {
+      console.log('form submitted!')
       const userStore = useStore()
 
       const requestData = {
@@ -34,9 +35,12 @@ export default {
         data: userStore.inputData,
         forecast_steps: 5,
       }
+      // console.log(requestData)
       try {
         const response = await this.$http.post('http://localhost:5000/forecast', requestData)
+        // console.log(response)
         this.chartData = response.data.forecast
+        userStore.setChartData(this.chartData)
       } catch (error) {
         console.error('Ошибка при запросе данных:', error)
       }

@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 
 export const useStore = defineStore('userData', {
   state: () => ({
-    inputData: '',
+    inputData: [],
+    chartData: [],
     labels: [],
     method: '',
   }),
@@ -16,6 +17,9 @@ export const useStore = defineStore('userData', {
     },
     setLabels(labels) {
       this.labels = labels
+    },
+    setChartData(data) {
+      this.chartData = data
     },
   },
 })
