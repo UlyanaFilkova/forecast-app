@@ -11,8 +11,9 @@
         <input type="file" @change="handleFileUpload" />
         <span v-if="fileError" class="error">{{ fileError }}</span>
         <select v-model="forecastMethod">
-          <option value="method1">Метод 1</option>
-          <option value="method2">Метод 2</option>
+          <option value="exponential_smoothing">Метод экспоненциального сглаживания</option>
+          <option value="linear_regression">Метод простой линейной регрессии</option>
+          <option value="arima">Метод ARIMA</option>
         </select>
         <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
       </div>
@@ -46,7 +47,7 @@ export default {
       dataInput: '',
       file: null,
       fileError: '',
-      forecastMethod: 'method1',
+      forecastMethod: 'exponential_smoothing',
       showModal: false,
       dataLines: [],
       numberSelected: 1,
@@ -94,7 +95,8 @@ export default {
       const userStore = useStore()
       userStore.setData(this.dataLines[0])
       userStore.setLabels('')
-      this.$emit('data-submitted', this.dataLines[0])
+      userStore.setMethod(this.forecastMethod)
+      this.$emit('data-submitted')
     },
     handleFileUpload(event) {
       const file = event.target.files[0]
@@ -151,12 +153,7 @@ export default {
       reader.readAsArrayBuffer(file)
       this.showModal = true
     },
-    submitData() {
-      const data = {
-        url: this.url,
-        method: this.forecastMethod,
-      }
-    },
+   
     confirmSelection(numberSelected, skipCells, readingDirection, labelSelected) {
       console.log('Выбранный столбец/строка:', numberSelected)
       console.log('Сколько пропустить:', skipCells)
@@ -195,8 +192,9 @@ export default {
 
       const userStore = useStore()
       userStore.setData(extractedData)
+      userStore.setData(this.forecastMethod)
       userStore.setLabels(labels)
-      this.$emit('data-submitted', extractedData)
+      this.$emit('data-submitted')
     },
   },
 }
