@@ -76,11 +76,12 @@ export default {
   computed: {
     numberOfColumns() {
       if (this.dataLines[0]) {
-        return this.dataLines.length > 0 ? this.dataLines[0].toString().split(' ').length : 0
+        return this.dataLines.length > 0 ? this.dataLines[0].length : 0
       } else {
         return 0
       }
     },
+
     isSubmitButtonDisabled() {
       return this.dataInput.length === 0 && this.dataLines.length === 0
       // return this.dataLines.length === 0 || this.dataLines.every((item) => item.length === 0)

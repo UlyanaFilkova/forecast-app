@@ -34,7 +34,9 @@
           </select>
           <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
           <select v-model="skipCells" id="skipCellsSelect">
-            <option v-for="i in numberOfRows" :key="i" :value="i - 1">{{ i - 1 }}</option>
+            <option v-for="i in numberOfPossibleSkipCells" :key="i" :value="i - 1">
+              {{ i - 1 }}
+            </option>
           </select>
         </div>
         <button @click="confirmSelection">Подтвердить выбор</button>
@@ -76,6 +78,9 @@ export default {
     numberOfRowsOrColumns() {
       return this.readingDirection === 'row' ? this.numberOfRows : this.numberOfColumns
     },
+    numberOfPossibleSkipCells() {
+      return this.readingDirection === 'row' ? this.numberOfColumns : this.numberOfRows
+    },
   },
   methods: {
     closeModal() {
@@ -92,17 +97,17 @@ export default {
     },
     resetData() {
       // Сброс значений до дефолтных
-      this.numberSelected = 1;
-      this.skipCells = 0;
-      this.readingDirection = 'column';
-      this.labelSelected = 0;
+      this.numberSelected = 1
+      this.skipCells = 0
+      this.readingDirection = 'column'
+      this.labelSelected = 0
     },
   },
   watch: {
     isOpen(newValue) {
       if (newValue) {
         // Сброс данных до дефолтных значений при открытии модального окна
-        this.resetData();
+        this.resetData()
       }
     },
   },
