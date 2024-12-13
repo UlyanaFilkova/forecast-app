@@ -1,5 +1,5 @@
 <template>
-  <div class="linear-regression-info">
+  <div class="method-info">
     <h1>Метод линейной регрессии</h1>
     <section>
       <p>
@@ -129,7 +129,7 @@ export default {
 </script>
 
 <style scoped>
-.linear-regression-info {
+.method-info {
   font-family: Arial, sans-serif;
   line-height: 1.6;
   margin: 20px;

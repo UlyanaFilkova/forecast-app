@@ -36,7 +36,7 @@
         >
       </li>
     </ul>
-    <LinearRegression />
+    <ArimaMethod />
   </div>
 </template>
 
@@ -44,10 +44,14 @@
 import { useStore } from '@/stores/store.js'
 
 import LinearRegression from './Theory/LinearRegression.vue'
+import ArimaMethod from './Theory/ArimaMethod.vue'
+import RandomForest from './Theory/RandomForest.vue'
 
 export default {
   components: {
     LinearRegression,
+    ArimaMethod,
+    RandomForest,
   },
   data() {
     return {
