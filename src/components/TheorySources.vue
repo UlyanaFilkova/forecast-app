@@ -36,8 +36,26 @@
         >
       </li>
     </ul>
+    <LinearRegression />
   </div>
 </template>
+
+<script>
+import { useStore } from '@/stores/store.js'
+
+import LinearRegression from './Theory/LinearRegression.vue'
+
+export default {
+  components: {
+    LinearRegression,
+  },
+  data() {
+    return {
+      chartData: null,
+    }
+  },
+}
+</script>
 
 <style scoped>
 .theory {
