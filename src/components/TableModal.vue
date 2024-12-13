@@ -2,8 +2,10 @@
   <transition name="modal-fade">
     <div class="modal-backdrop" v-if="isOpen">
       <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <h3>Введенные данные</h3>
+        <div class="modal-header">
+          <h2>Введенные данные</h2>
+          <span class="close" @click="closeModal">&times;</span>
+        </div>
         <div class="table-container">
           <table>
             <tbody>
@@ -13,7 +15,7 @@
             </tbody>
           </table>
         </div>
-        <div>
+        <div class="questions-container">
           <label>Откуда считываем данные?</label>
           <div>
             <input type="radio" id="column" value="column" v-model="readingDirection" checked />
@@ -23,18 +25,20 @@
             <input type="radio" id="row" value="row" v-model="readingDirection" />
             <label for="row">Из строки</label>
           </div>
-        </div>
-        <label for="numberSelected">Выберите номер строки/столбца с данными:</label>
-        <select v-model="numberSelected" id="numberSelected">
-          <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">
-            {{ i }}
-          </option>
-        </select>
-        <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
-        <select v-model="skipCells" id="skipCellsSelect">
-          <option v-for="i in numberOfRows" :key="i" :value="i - 1">{{ i - 1 }}</option>
-        </select>
 
+          <label for="numberSelected">Выберите номер строки/столбца с данными:</label>
+          <select v-model="numberSelected" id="numberSelected">
+            <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">
+              {{ i }}
+            </option>
+          </select>
+          <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
+          <select v-model="skipCells" id="skipCellsSelect">
+            <option v-for="i in numberOfPossibleSkipCells" :key="i" :value="i - 1">
+              {{ i - 1 }}
+            </option>
+          </select>
+        </div>
         <button @click="confirmSelection">Подтвердить выбор</button>
       </div>
     </div>
@@ -74,6 +78,9 @@ export default {
     numberOfRowsOrColumns() {
       return this.readingDirection === 'row' ? this.numberOfRows : this.numberOfColumns
     },
+    numberOfPossibleSkipCells() {
+      return this.readingDirection === 'row' ? this.numberOfColumns : this.numberOfRows
+    },
   },
   methods: {
     closeModal() {
@@ -87,6 +94,21 @@ export default {
         this.readingDirection,
         this.labelSelected,
       )
+    },
+    resetData() {
+      // Сброс значений до дефолтных
+      this.numberSelected = 1
+      this.skipCells = 0
+      this.readingDirection = 'column'
+      this.labelSelected = 0
+    },
+  },
+  watch: {
+    isOpen(newValue) {
+      if (newValue) {
+        // Сброс данных до дефолтных значений при открытии модального окна
+        this.resetData()
+      }
     },
   },
 }
@@ -114,12 +136,68 @@ export default {
   padding: 20px;
 }
 
+.modal-header {
+  display: flex;
+}
+
+h2 {
+  flex-grow: 1;
+  text-align: center;
+}
+
 .table-container {
   max-height: 300px;
   overflow-y: auto;
+  padding: 10px;
+  background-color: #d6d6d6;
+  border-radius: 5px;
+  text-wrap: wrap;
 }
 
 .close {
   cursor: pointer;
+  color: #e10000;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.questions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 10px;
+  margin: 10px 5px;
+}
+
+button {
+  display: block;
+  margin: 0 auto;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+label {
+  margin-top: 5px;
+}
+select {
+  padding: 2px 10px;
+  font-size: 16px;
+  border: 1px solid #777;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
 }
 </style>

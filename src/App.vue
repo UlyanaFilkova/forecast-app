@@ -3,7 +3,7 @@
     <h1>Прогнозирование данных</h1>
     <DataInput @data-submitted="handleDataSubmitted" />
     <ForecastResult v-if="chartData" />
-    <Theory />
+    <TheorySource />
   </div>
 </template>
 
@@ -11,13 +11,13 @@
 import { useStore } from '@/stores/store.js'
 import DataInput from './components/DataInput.vue'
 import ForecastResult from './components/ForecastResult.vue'
-import Theory from './components/TheorySources.vue'
+import TheorySource from './components/TheorySources.vue'
 
 export default {
   components: {
     DataInput,
     ForecastResult,
-    Theory,
+    TheorySource,
   },
   data() {
     return {

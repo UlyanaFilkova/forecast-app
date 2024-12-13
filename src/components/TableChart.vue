@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <table>
       <thead>
         <tr>
@@ -101,6 +100,4 @@ td {
 th {
   background-color: #f2f2f2;
 }
-
-
 </style>

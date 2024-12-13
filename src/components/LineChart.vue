@@ -48,9 +48,9 @@ export default {
   },
   computed: {
     chartData() {
-      const historicalLabels = this.historicalData.map((_, index) => `Месяц ${index + 1}`)
+      const historicalLabels = this.historicalData.map((_, index) => `${index + 1}`)
       const forecastLabels = this.forecastData.map(
-        (_, index) => `Месяц ${this.historicalData.length + index + 1}`,
+        (_, index) => `${this.historicalData.length + index + 1}`,
       )
       const allLabels = [...historicalLabels, ...forecastLabels]
 
