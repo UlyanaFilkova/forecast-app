@@ -1,42 +1,20 @@
 <template>
   <div>
     <h2>Теория прогнозирования</h2>
-    <p>
-      В этом разделе вы можете изучить различные методы прогнозирования данных. Прогнозирование —
-      это процесс оценки будущих значений на основе исторических данных.
-    </p>
-    <h3>Методы прогнозирования</h3>
-    <ul>
-      <li>
-        <strong>Метод скользящего среднего:</strong> Использует средние значения за определенный
-        период для прогнозирования будущих значений.
-      </li>
-      <li>
-        <strong>Метод экспоненциального сглаживания:</strong> Учитывает более свежие данные с
-        большим весом.
-      </li>
-      <li>
-        <strong>Регрессионный анализ:</strong> Использует статистические методы для определения
-        зависимости между переменными.
-      </li>
-    </ul>
-    <h3>Дополнительные ресурсы</h3>
-    <p>Для более подробной информации вы можете посетить следующие ссылки:</p>
-    <ul>
-      <li>
-        <a href="https://ru.wikipedia.org/wiki/Прогнозирование" target="_blank"
-          >Прогнозирование на Википедии</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://www.statisticshowto.com/probability-and-statistics/statistics-definitions/forecasting/"
-          target="_blank"
-          >Forecasting - Statistics How To</a
-        >
-      </li>
-    </ul>
-    <LinearRegression />
+    <p>Прогнозирование — это процесс оценки будущих значений на основе исторических данных.</p>
+    <div class="tabs">
+      <button
+        v-for="(tab, index) in tabs"
+        :key="index"
+        :class="['tab', { active: currentTab === index }]"
+        @click="currentTab = index"
+      >
+        {{ tab }}
+      </button>
+    </div>
+    <div class="tab-content">
+      <component :is="components[currentTab]" />
+    </div>
   </div>
 </template>
 
@@ -44,14 +22,22 @@
 import { useStore } from '@/stores/store.js'
 
 import LinearRegression from './Theory/LinearRegression.vue'
+import ArimaMethod from './Theory/ArimaMethod.vue'
+import RandomForest from './Theory/RandomForest.vue'
+import KnnMethod from './Theory/KnnMethod.vue'
 
 export default {
   components: {
     LinearRegression,
+    ArimaMethod,
+    RandomForest,
+    KnnMethod,
   },
   data() {
     return {
-      chartData: null,
+      currentTab: 0,
+      tabs: ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN'],
+      components: [LinearRegression, ArimaMethod, RandomForest, KnnMethod],
     }
   },
 }
@@ -66,21 +52,10 @@ export default {
   margin-bottom: 20px;
 }
 
-h2 {
+h2,
+p {
   color: #333;
-}
-
-h3 {
-  color: #007bff;
-}
-
-ul {
-  list-style-type: disc;
-  margin-left: 20px;
-}
-
-li {
-  margin: 5px 0;
+  text-align: center;
 }
 
 a {
@@ -90,5 +65,39 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #ddd;
+  margin: 0 20px;
+  justify-content: center;
+}
+
+.tab {
+  flex-grow: 1;
+
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  border-bottom: none;
+
+  background-color: #f1f1f1;
+  transition: background-color 0.3s;
+}
+
+.tab:hover {
+  background-color: #e7e7e7;
+}
+
+.tab.active {
+  background-color: #a0ceff;
+  color: black;
+  border-top: 2px solid #439eff;
+  border-left: 2px solid #439eff;
+  border-right: 2px solid #439eff;
+  border-radius: 7px 7px 0 0;
+  font-weight: bold;
 }
 </style>

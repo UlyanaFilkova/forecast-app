@@ -1,5 +1,5 @@
 <template>
-  <div class="linear-regression-info">
+  <div class="method-info">
     <h1>Метод линейной регрессии</h1>
     <section>
       <p>
@@ -8,6 +8,7 @@
         <b>прямой линии</b>, которая наилучшим образом описывает связь между входными данными
         (факторами) и целевой переменной.
       </p>
+      <img src="@/assets/linear-regression.png" alt="" srcset="" />
       <h2>Основная идея линейной регрессии</h2>
       <p>
         Линейная регрессия предполагает, что зависимость между входными переменными (\(x\)) и
@@ -129,7 +130,7 @@ export default {
 </script>
 
 <style scoped>
-.linear-regression-info {
+.method-info {
   font-family: Arial, sans-serif;
   line-height: 1.6;
   margin: 20px;
@@ -163,5 +164,10 @@ li {
   text-align: center;
   margin: 20px 0;
   color: #000;
+}
+img {
+  display: block;
+  width: 70%;
+  margin: 0 auto;
 }
 </style>

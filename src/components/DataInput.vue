@@ -242,7 +242,7 @@ textarea {
   resize: vertical;
   height: 100px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 7px;
   padding: 10px;
   font-size: 16px;
   resize: none;
