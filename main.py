@@ -8,27 +8,6 @@ from sklearn.neighbors import KNeighborsRegressor
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 
-
-# # Метод экспоненциального сглаживания
-# def exponential_smoothing_forecast(data, smoothing_factor):
-#     """
-#     Прогнозирование с использованием метода экспоненциального сглаживания (ручная реализация).
-
-#     :param data: Массив чисел (исторические данные).
-#     :param smoothing_factor: Сглаживающий фактор (alpha).
-#     :return: Сглаженные значения.
-#     """
-
-#     N = len(data)  # Число периодов
-#     smoothed_values = [0] * (N + 1)  # Массив для сглаженных значений
-#     smoothed_values[0] = data[0]  # Начальное значение
-
-#     # Расчет сглаженных значений
-#     for i in range(1, N + 1):
-#         smoothed_values[i] = smoothing_factor * data[i - 1] + (1 - smoothing_factor) * smoothed_values[i - 1]
-
-#     return [smoothed_values[N]]
-
 # Метод простой линейной регрессии
 def linear_regression_forecast(data, forecast_steps):
     """

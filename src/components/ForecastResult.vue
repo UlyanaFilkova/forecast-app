@@ -87,7 +87,7 @@ export default {
     downloadPDF() {
       const doc = new jsPDF()
       autoTable(doc, {
-        head: [['Month', 'Historical Data', 'Forecast Data']],
+        head: [['', 'Historical Data', 'Forecast Data']],
         body: this.getTableData(),
       })
       doc.save('table.pdf')
@@ -101,10 +101,10 @@ export default {
     getTableData() {
       const data = []
       this.historicalData.forEach((value, index) => {
-        data.push([`Month ${index + 1}`, value, '-'])
+        data.push([` ${index + 1}`, value, '-'])
       })
       this.forecastData.forEach((value, index) => {
-        data.push([`Month ${this.historicalData.length + index + 1}`, '-', value])
+        data.push([` ${this.historicalData.length + index + 1}`, '-', value])
       })
       return data
     },

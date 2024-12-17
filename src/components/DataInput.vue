@@ -5,7 +5,7 @@
       <textarea
         v-model="dataInput"
         @change="handleTextAreaUpload"
-        placeholder="Введите текст здесь или прикрепите файл"
+        placeholder="Введите данные здесь или прикрепите файл"
       ></textarea>
       <div class="file-input-container">
         <input type="file" @change="handleFileUpload" />
@@ -48,7 +48,7 @@ export default {
       dataInput: '',
       file: null,
       fileError: '',
-      forecastMethod: 'arima',
+      forecastMethod: 'linear_regression',
       showModal: false,
       dataLines: [],
       numberSelected: 1,

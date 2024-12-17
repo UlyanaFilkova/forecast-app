@@ -1,6 +1,6 @@
 <template>
   <div class="method-info">
-    <h1>Метод случайных лесов</h1>
+    <h1>Метод K ближайших соседей</h1>
     <section>
       <p>
         <b>Метод K ближайших соседей (K-Nearest Neighbors, KNN)</b> — это простой и эффективный
