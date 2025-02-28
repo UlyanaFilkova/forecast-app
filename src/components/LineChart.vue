@@ -86,6 +86,6 @@ export default {
 <style scoped>
 .chart {
   width: 100%;
-  height: 400px; /* Установите нужную высоту для графика */
+  height: 400px;
 }
 </style>

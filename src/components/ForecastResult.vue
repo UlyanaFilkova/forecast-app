@@ -4,6 +4,10 @@
     <div class="chart-options-container">
       <div class="radio-container">
         <label>
+          <input type="radio" value="all" v-model="chartType" />
+          All Methods
+        </label>
+        <label>
           <input type="radio" value="line" v-model="chartType" />
           Line Chart
         </label>
@@ -34,6 +38,7 @@
 import BarChart from './BarChart.vue'
 import LineChart from './LineChart.vue'
 import TableChart from './TableChart.vue'
+import AllCharts from './AllCharts.vue'
 import { useStore } from '@/stores/store.js'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -41,12 +46,12 @@ import * as XLSX from 'xlsx'
 
 export default {
   name: 'ParentChart',
-  components: { BarChart, LineChart, TableChart },
+  components: { BarChart, LineChart, TableChart, AllCharts },
   data() {
     return {
       // historicalData: [100, 120, 130, 150, 170, 200, 220, 250, 270, 300, 320, 350],
       // forecastData: [380, 400, 420, 450],
-      chartType: 'line',
+      chartType: 'all',
       chartOptions: {
         responsive: true,
         scales: {
@@ -77,6 +82,8 @@ export default {
           return 'LineChart'
         case 'table':
           return 'TableChart'
+        case 'all':
+          return 'AllCharts'
         case 'bar':
         default:
           return 'BarChart'
