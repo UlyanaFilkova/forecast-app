@@ -19,19 +19,17 @@ const chartData = ref(null)
 const userStore = useStore()
 
 const handleDataSubmitted = async () => {
-  console.log('form submitted!')
-
   const requestData = {
-    method: userStore.method,
-    data: userStore.inputData,
+    inputData: userStore.inputData,
     forecast_steps: 5,
   }
-  console.log(requestData)
 
   try {
     const response = await axios.post('http://localhost:5000/forecast', requestData)
-    chartData.value = response.data.forecast
+    console.log(response.data)
+    chartData.value = response.data
     userStore.setChartData(chartData.value)
+    console.log(chartData.value)
   } catch (error) {
     console.error('Ошибка при запросе данных:', error)
   }

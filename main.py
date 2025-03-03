@@ -137,38 +137,38 @@ CORS(app)
 def forecast():
     try:
         request_data = request.get_json()
-        method = request_data.get('method')
         data = []
-        for x in request_data.get('data', []):
+
+        for x in request_data.get('inputData', []):
             try:
-                if x:  
+                if x:
                     data.append(float(x))
             except ValueError:
-                continue 
+                continue
 
         forecast_steps = int(request_data.get('forecast_steps', 5))
 
-        print("Received data:", data)
-        print("Received method:", method)
-        if not data or method not in ['knn', 'linear_regression','arima', 'random_forest']:
+        if not data:
             return jsonify({"error": "Invalid input"}), 400
 
- 
-        if method == 'linear_regression':
-            forecast = linear_regression_forecast(data, forecast_steps)
-  
-        elif method == 'arima':
-            order = request_data.get('order', (1, 1, 1))
-            forecast = arima_forecast(data, forecast_steps, order)
-        elif method == 'random_forest':
-            forecast = random_forest_forecast(data, forecast_steps)
-        elif method == 'knn':
-            n_neighbors = request_data.get('n_neighbors', 3)
-            forecast = knn_forecast(data, forecast_steps, n_neighbors)
+        # Получаем параметры для методов, если они есть
+        order = request_data.get('order', (1, 1, 1))
+        n_neighbors = request_data.get('n_neighbors', 3)
 
-        return jsonify({"forecast": forecast})
+        # Словарь для хранения результатов всех методов
+        results = {}
+
+        # Запуск всех методов прогнозирования
+        results["Linear Regression"] = linear_regression_forecast(data, forecast_steps)
+        results["ARIMA"] = arima_forecast(data, forecast_steps, order)
+        results["Random Forest"] = random_forest_forecast(data, forecast_steps)
+        results["KNN"] = knn_forecast(data, forecast_steps, n_neighbors)
+
+        return jsonify(results)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

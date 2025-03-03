@@ -119,7 +119,6 @@ const handleFileUpload = (event) => {
 
   const selectedFile = event.target.files[0]
   file.value = selectedFile
-  console.log(v$.value)
   v$.value.$touch()
 
   if (v$.$invalid) {
@@ -210,9 +209,7 @@ const confirmSelection = (selectedNumber, skipCellsParam, readingDirectionParam,
   }
 
   const userStore = useStore()
-  console.log(extractedData.value)
-  console.log(forecastMethod.value)
-  console.log(labels.value)
+
   userStore.setData(extractedData.value)
   userStore.setMethod(forecastMethod.value)
   userStore.setLabels(labels.value)

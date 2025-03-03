@@ -26,10 +26,13 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  forecastData: {
+    type: Object,
+    required: true,
+  },
   forecastDataCount: {
     type: Number,
     required: true,
-    default: 4,
   },
   chartOptions: {
     type: Object,
@@ -45,32 +48,39 @@ const chartData = computed(() => {
 
   const lastHistoricalValue = props.historicalData[props.historicalData.length - 1];
 
-  const randomForecasts = Array.from({ length: props.forecastDataCount }, () =>
-    Array(props.historicalData.length - 1).fill(null).concat(lastHistoricalValue).concat(
-      Array(props.forecastDataCount).fill(0).map(() => Math.floor(Math.random() * 100) + 50)
-    )
-  );
+  // const randomForecasts = Array.from({ length: props.forecastDataCount }, () =>
+  //   Array(props.historicalData.length - 1).fill(null).concat(lastHistoricalValue).concat(
+  //     Array(props.forecastDataCount).fill(0).map(() => Math.floor(Math.random() * 100) + 50)
+  //   )
+  // );
+
+
+  const datasets = [
+    {
+      label: 'Исторические данные',
+      backgroundColor: 'rgba(66, 165, 245, 0.5)',
+      borderColor: '#42A5F5',
+      fill: true,
+      data: props.historicalData,
+      yAxisID: 'y',
+    }
+  ];
+
+  Object.entries(props.forecastData).forEach(([method, values]) => {
+    datasets.push({
+      label: method,
+      backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`,
+      borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+      fill: true,
+      data: [...Array(props.historicalData.length - 1).fill(null), props.historicalData.at(-1), ...values],
+      yAxisID: 'y',
+    });
+  });
 
   return {
     labels: [...historicalLabels, ...forecastLabels],
-    datasets: [
-      {
-        label: 'Исторические данные',
-        backgroundColor: 'rgba(66, 165, 245, 0.5)',
-        borderColor: '#42A5F5',
-        fill: true,
-        data: props.historicalData,
-        yAxisID: 'y',
-      },
-      ...randomForecasts.map((forecast, idx) => ({
-        label: `Прогноз ${idx + 1}`,
-        backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`,
-        borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
-        fill: true,
-        data: forecast,
-        yAxisID: 'y',
-      }))
-    ]
+    datasets,
+
   };
 });
 </script>
