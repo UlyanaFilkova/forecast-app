@@ -18,29 +18,18 @@
   </div>
 </template>
 
-<script>
-import { useStore } from '@/stores/store.js'
+<script setup>
+import { ref } from 'vue'
 
 import LinearRegression from './Theory/LinearRegression.vue'
 import ArimaMethod from './Theory/ArimaMethod.vue'
 import RandomForest from './Theory/RandomForest.vue'
 import KnnMethod from './Theory/KnnMethod.vue'
 
-export default {
-  components: {
-    LinearRegression,
-    ArimaMethod,
-    RandomForest,
-    KnnMethod,
-  },
-  data() {
-    return {
-      currentTab: 0,
-      tabs: ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN'],
-      components: [LinearRegression, ArimaMethod, RandomForest, KnnMethod],
-    }
-  },
-}
+// Состояния компонента
+const currentTab = ref(0)
+const tabs = ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN']
+const components = [LinearRegression, ArimaMethod, RandomForest, KnnMethod]
 </script>
 
 <style scoped>

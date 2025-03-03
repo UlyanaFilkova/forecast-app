@@ -7,43 +7,34 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
 import { useStore } from '@/stores/store.js'
 import DataInput from './components/DataInput.vue'
 import ForecastResult from './components/ForecastResult.vue'
 import TheorySource from './components/TheorySources.vue'
 
-export default {
-  components: {
-    DataInput,
-    ForecastResult,
-    TheorySource,
-  },
-  data() {
-    return {
-      chartData: null,
-    }
-  },
-  methods: {
-    async handleDataSubmitted() {
-      console.log('form submitted!')
-      const userStore = useStore()
+const chartData = ref(null)
+const userStore = useStore()
 
-      const requestData = {
-        method: userStore.method,
-        data: userStore.inputData,
-        forecast_steps: 5,
-      }
-      console.log(requestData)
-      try {
-        const response = await this.$http.post('http://localhost:5000/forecast', requestData)
-        this.chartData = response.data.forecast
-        userStore.setChartData(this.chartData)
-      } catch (error) {
-        console.error('Ошибка при запросе данных:', error)
-      }
-    },
-  },
+const handleDataSubmitted = async () => {
+  console.log('form submitted!')
+
+  const requestData = {
+    method: userStore.method,
+    data: userStore.inputData,
+    forecast_steps: 5,
+  }
+  console.log(requestData)
+
+  try {
+    const response = await axios.post('http://localhost:5000/forecast', requestData)
+    chartData.value = response.data.forecast
+    userStore.setChartData(chartData.value)
+  } catch (error) {
+    console.error('Ошибка при запросе данных:', error)
+  }
 }
 </script>
 

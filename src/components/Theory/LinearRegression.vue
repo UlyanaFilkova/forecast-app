@@ -117,16 +117,14 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'LinearRegressionInfo',
-  mounted() {
-    // Перерисовка формул MathJax после монтирования
-    if (window.MathJax) {
-      window.MathJax.typesetPromise()
-    }
-  },
-}
+<script setup>
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  if (window.MathJax) {
+    window.MathJax.typesetPromise()
+  }
+})
 </script>
 
 <style scoped>

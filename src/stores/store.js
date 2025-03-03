@@ -1,25 +1,36 @@
-// store.js
 import { defineStore } from 'pinia'
+import {ref} from 'vue'
 
-export const useStore = defineStore('userData', {
-  state: () => ({
-    inputData: [],
-    chartData: [],
-    labels: [],
-    method: '',
-  }),
-  actions: {
-    setData(data) {
-      this.inputData = data
-    },
-    setMethod(method) {
-      this.method = method
-    },
-    setLabels(labels) {
-      this.labels = labels
-    },
-    setChartData(data) {
-      this.chartData = data
-    },
-  },
+export const useStore = defineStore('userData', () => {
+  const inputData = ref([])
+  const chartData = ref([])
+  const labels = ref([])
+  const method = ref('')
+
+  function setData(data) {
+    inputData.value = data
+  }
+
+  function setMethod(methodValue) {
+    method.value = methodValue
+  }
+
+  function setLabels(labelsValue) {
+    labels.value = labelsValue
+  }
+
+  function setChartData(data) {
+    chartData.value = data
+  }
+
+  return {
+    inputData,
+    chartData,
+    labels,
+    method,
+    setData,
+    setMethod,
+    setLabels,
+    setChartData,
+  }
 })
