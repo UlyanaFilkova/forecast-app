@@ -9,16 +9,16 @@
         <div class="table-container">
           <table>
             <tbody>
-              <tr v-for="(line, index) in dataLines" :key="index">
-                <td v-for="(cell, cellIndex) in line" :key="cellIndex">{{ cell }}</td>
-              </tr>
+            <tr v-for="(line, index) in dataLines" :key="index">
+              <td v-for="(cell, cellIndex) in line" :key="cellIndex">{{ cell }}</td>
+            </tr>
             </tbody>
           </table>
         </div>
         <div class="questions-container">
           <label>Откуда считываем данные?</label>
           <div>
-            <input type="radio" id="column" value="column" v-model="readingDirection" checked />
+            <input type="radio" id="column" value="column" v-model="readingDirection" />
             <label for="column">Из столбца</label>
           </div>
           <div>
@@ -28,15 +28,12 @@
 
           <label for="numberSelected">Выберите номер строки/столбца с данными:</label>
           <select v-model="numberSelected" id="numberSelected">
-            <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">
-              {{ i }}
-            </option>
+            <option v-for="i in numberOfRowsOrColumns" :key="i" :value="i">{{ i }}</option>
           </select>
+
           <label for="skipCellsSelect">Сколько ячеек отступить от начала:</label>
           <select v-model="skipCells" id="skipCellsSelect">
-            <option v-for="i in numberOfPossibleSkipCells" :key="i" :value="i - 1">
-              {{ i - 1 }}
-            </option>
+            <option v-for="i in numberOfPossibleSkipCells" :key="i" :value="i - 1">{{ i - 1 }}</option>
           </select>
         </div>
         <button @click="confirmSelection">Подтвердить выбор</button>
@@ -45,73 +42,61 @@
   </transition>
 </template>
 
-<script>
-export default {
-  props: {
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-    dataLines: {
-      type: Array,
-      required: true,
-    },
+<script setup>
+import { ref, computed, watch } from 'vue'
 
-    numberOfColumns: {
-      type: Number,
-      required: true,
-    },
-    numberOfRows: {
-      type: Number,
-      required: true,
-    },
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    required: true,
   },
-  data() {
-    return {
-      numberSelected: 1,
-      skipCells: 0,
-      readingDirection: 'column',
-      labelSelected: 0,
-    }
+  dataLines: {
+    type: Array,
+    required: true,
   },
-  computed: {
-    numberOfRowsOrColumns() {
-      return this.readingDirection === 'row' ? this.numberOfRows : this.numberOfColumns
-    },
-    numberOfPossibleSkipCells() {
-      return this.readingDirection === 'row' ? this.numberOfColumns : this.numberOfRows
-    },
+  numberOfColumns: {
+    type: Number,
+    required: true,
   },
-  methods: {
-    closeModal() {
-      this.$emit('close')
-    },
-    confirmSelection() {
-      this.$emit(
-        'confirm',
-        this.numberSelected,
-        this.skipCells,
-        this.readingDirection,
-        this.labelSelected,
-      )
-    },
-    resetData() {
-      // Сброс значений до дефолтных
-      this.numberSelected = 1
-      this.skipCells = 0
-      this.readingDirection = 'column'
-      this.labelSelected = 0
-    },
+  numberOfRows: {
+    type: Number,
+    required: true,
   },
-  watch: {
-    isOpen(newValue) {
-      if (newValue) {
-        // Сброс данных до дефолтных значений при открытии модального окна
-        this.resetData()
-      }
-    },
-  },
+})
+
+const emit = defineEmits(['close', 'confirm'])
+
+const numberSelected = ref(1)
+const skipCells = ref(0)
+const readingDirection = ref('column')
+const labelSelected = ref(0)
+
+const numberOfRowsOrColumns = computed(() =>
+  readingDirection.value === 'row' ? props.numberOfRows : props.numberOfColumns
+)
+
+const numberOfPossibleSkipCells = computed(() =>
+  readingDirection.value === 'row' ? props.numberOfColumns : props.numberOfRows
+)
+
+const closeModal = () => {
+  emit('close')
 }
+
+const confirmSelection = () => {
+  emit('confirm', numberSelected.value, skipCells.value, readingDirection.value, labelSelected.value)
+}
+
+const resetData = () => {
+  numberSelected.value = 1
+  skipCells.value = 0
+  readingDirection.value = 'column'
+  labelSelected.value = 0
+}
+
+watch(() => props.isOpen, (newValue) => {
+  if (newValue) resetData()
+})
 </script>
 
 <style scoped>
@@ -186,9 +171,11 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
 label {
   margin-top: 5px;
 }
+
 select {
   padding: 2px 10px;
   font-size: 16px;

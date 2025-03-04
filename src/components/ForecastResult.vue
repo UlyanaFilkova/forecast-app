@@ -1,128 +1,147 @@
 <template>
   <h2>Результаты прогнозирования</h2>
-  <div class="chart__container">
+|
+  <Tabs :tabs="forecastMethods" v-model:currentTab="currentTab">   </Tabs>
     <div class="chart-options-container">
-      <div class="radio-container">
-        <label>
-          <input type="radio" value="line" v-model="chartType" />
-          Line Chart
-        </label>
-        <label>
-          <input type="radio" value="bar" v-model="chartType" />
-          Bar Chart
-        </label>
-        <label>
-          <input type="radio" value="table" v-model="chartType" />
-          Table
-        </label>
+      <div class="tabs">
+        <button
+          v-for="option in chartTypes"
+          :key="option.value"
+          :class="['tab', { active: chartType === option.value }]"
+          @click="chartType = option.value"
+        >
+          {{ option.label }}
+        </button>
       </div>
+
       <div class="buttons-container">
         <button @click="downloadPDF">Скачать PDF</button>
         <button @click="downloadExcel">Скачать Excel</button>
       </div>
     </div>
+
     <component
       :is="currentChartType"
       :historical-data="historicalData"
-      :forecast-data="forecastData"
-      :chart-options="chartOptions"
+      :forecast-data="filteredForecastData"
+      :chart-options="chartConfig"
+      :forecast-data-count="forecastSteps"
     />
-  </div>
+
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch } from 'vue'
+import { useStore } from '@/stores/store.js'
 import BarChart from './BarChart.vue'
 import LineChart from './LineChart.vue'
 import TableChart from './TableChart.vue'
-import { useStore } from '@/stores/store.js'
+import AllCharts from './AllCharts.vue'
+import Tabs from '@/components/Tabs.vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 
-export default {
-  name: 'ParentChart',
-  components: { BarChart, LineChart, TableChart },
-  data() {
-    return {
-      // historicalData: [100, 120, 130, 150, 170, 200, 220, 250, 270, 300, 320, 350],
-      // forecastData: [380, 400, 420, 450],
-      chartType: 'line',
-      chartOptions: {
-        responsive: true,
-        scales: {
-          x: {
-            stacked: true,
-            barPercentage: 0.5,
-            categoryPercentage: 0.5,
-          },
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    }
+const forecastMethods = ref(['All Methods', 'Linear Regression', 'ARIMA', 'Random Forest', 'KNN'])
+const currentTab = ref(0)
+const selectedMethod = computed(() => forecastMethods.value[currentTab.value])
+
+let chartTypes = [
+  { label: 'All Charts', value: 'all' },
+  { label: 'Line Chart', value: 'line' },
+  { label: 'Bar Chart', value: 'bar' },
+  { label: 'Table', value: 'table' },
+]
+
+const chartType = ref('all')
+
+const updateChartType = () => {
+  if (selectedMethod.value === 'All Methods') {
+    chartType.value = 'all'
+    chartTypes = []
+  }else{
+    chartType.value = 'line'
+    chartTypes = [
+      { label: 'Line Chart', value: 'line' },
+      { label: 'Bar Chart', value: 'bar' },
+      { label: 'Table', value: 'table' },
+    ]
+  }
+}
+
+watch(currentTab, updateChartType, {immediate: true})
+
+const chartConfig = ref({
+  responsive: true,
+  scales: {
+    x: { stacked: true, barPercentage: 0.5, categoryPercentage: 0.5 },
+    y: { beginAtZero: true },
   },
-  computed: {
-    historicalData() {
-      const userStore = useStore()
-      return userStore.inputData
-    },
-    forecastData() {
-      const userStore = useStore()
-      return userStore.chartData
-    },
-    currentChartType() {
-      switch (this.chartType) {
-        case 'line':
-          return 'LineChart'
-        case 'table':
-          return 'TableChart'
-        case 'bar':
-        default:
-          return 'BarChart'
-      }
-    },
-  },
-  methods: {
-    downloadPDF() {
-      const doc = new jsPDF()
-      autoTable(doc, {
-        head: [['Month', 'Historical Data', 'Forecast Data']],
-        body: this.getTableData(),
-      })
-      doc.save('table.pdf')
-    },
-    downloadExcel() {
-      const worksheet = XLSX.utils.json_to_sheet(this.getExcelData())
-      const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-      XLSX.writeFile(workbook, 'table.xlsx')
-    },
-    getTableData() {
-      const data = []
-      this.historicalData.forEach((value, index) => {
-        data.push([`Month ${index + 1}`, value, '-'])
-      })
-      this.forecastData.forEach((value, index) => {
-        data.push([`Month ${this.historicalData.length + index + 1}`, '-', value])
-      })
-      return data
-    },
-    getExcelData() {
-      const data = []
-      this.historicalData.forEach((value, index) => {
-        data.push({ Месяц: `Месяц ${index + 1}`, 'Исторические данные': value, Прогноз: '-' })
-      })
-      this.forecastData.forEach((value, index) => {
-        data.push({
-          Месяц: `Месяц ${this.historicalData.length + index + 1}`,
-          'Исторические данные': '-',
-          Прогноз: value,
-        })
-      })
-      return data
-    },
-  },
+})
+
+const store = useStore()
+const historicalData = computed(() => store.inputData)
+const forecastData = computed(() => store.chartData)
+const forecastSteps = 5
+
+const filteredForecastData = computed(() => {
+  if (selectedMethod.value === 'All Methods') {
+    return forecastData.value
+  }
+  return forecastData.value[selectedMethod.value] || []
+})
+
+const currentChartType = computed(() => {
+  if (selectedMethod.value === 'All Methods') {
+    return AllCharts
+  }
+  const chartMap = {
+    line: LineChart,
+    table: TableChart,
+    all: AllCharts,
+    bar: BarChart,
+  }
+  return chartMap[chartType.value] || AllCharts
+})
+
+const getTableData = () => {
+  const rows = []
+
+  historicalData.value.forEach((val, i) => {
+    rows.push([`Месяц ${i + 1}`, val, '-'])
+  })
+
+  Object.entries(filteredForecastData.value).forEach(([method, values]) => {
+    values.forEach((val, i) => {
+      rows.push([`Месяц ${historicalData.value.length + i + 1}`, '-', val])
+    })
+  })
+
+  return rows
+}
+
+const getExcelData = () => {
+  return getTableData().map(([month, historical, forecast]) => ({
+    Месяц: month,
+    'Исторические данные': historical,
+    Прогноз: forecast,
+  }))
+}
+
+const downloadPDF = () => {
+  const doc = new jsPDF()
+  autoTable(doc, {
+    head: [['Месяц', 'Исторические данные', 'Прогноз']],
+    body: getTableData(),
+  })
+  doc.save('table.pdf')
+}
+
+const downloadExcel = () => {
+  const worksheet = XLSX.utils.json_to_sheet(getExcelData())
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Лист1')
+  XLSX.writeFile(workbook, 'table.xlsx')
 }
 </script>
 
@@ -145,10 +164,12 @@ export default {
   align-items: center;
   gap: 20px;
 }
+
 .buttons-container {
   display: flex;
   gap: 30px;
 }
+
 h2 {
   text-align: center;
 }
@@ -171,6 +192,7 @@ button {
   font-size: 16px;
   transition: background-color 0.3s;
 }
+
 button:hover {
   background-color: #0056b3;
 }

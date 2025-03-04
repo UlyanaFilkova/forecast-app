@@ -139,15 +139,14 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'KNNInfo',
-  mounted() {
-    if (window.MathJax) {
-      window.MathJax.typesetPromise()
-    }
-  },
-}
+<script setup>
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  if (window.MathJax) {
+    window.MathJax.typesetPromise()
+  }
+})
 </script>
 
 <style scoped>

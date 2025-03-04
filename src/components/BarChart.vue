@@ -4,8 +4,9 @@
   </div>
 </template>
 
-<script>
-import { Bar } from 'vue-chartjs'
+<script setup>
+import { computed } from 'vue';
+import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
@@ -14,42 +15,42 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-} from 'chart.js'
+} from 'chart.js';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-export default {
-  name: 'BarChart',
-  components: { Bar },
-  props: {
-    historicalData: Array,
-    forecastData: Array,
-    chartOptions: Object,
-  },
-  computed: {
-    chartData() {
-      const historicalLabels = this.historicalData.map((_, index) => `${index + 1}`)
-      const forecastLabels = this.forecastData.map(
-        (_, index) => `${this.historicalData.length + index + 1}`,
-      )
-      const allLabels = [...historicalLabels, ...forecastLabels]
+const props = defineProps({
+  historicalData: Array,
+  forecastData: Array,
+  chartOptions: Object,
+});
 
-      return {
-        labels: allLabels,
-        datasets: [
-          {
-            label: 'Исторические данные',
-            backgroundColor: '#42A5F5',
-            data: this.historicalData,
-          },
-          {
-            label: 'Прогноз',
-            backgroundColor: '#FFA726',
-            data: Array(this.historicalData.length).fill(null).concat(this.forecastData),
-          },
-        ],
-      }
-    },
-  },
-}
+const chartData = computed(() => {
+  const historicalLabels = props.historicalData.map((_, index) => `${index + 1}`);
+  const forecastLabels = props.forecastData.map((_, index) => `${props.historicalData.length + index + 1}`);
+  const allLabels = [...historicalLabels, ...forecastLabels];
+
+  return {
+    labels: allLabels,
+    datasets: [
+      {
+        label: 'Исторические данные',
+        backgroundColor: '#42A5F5',
+        data: props.historicalData,
+      },
+      {
+        label: 'Прогноз',
+        backgroundColor: '#FFA726',
+        data: Array(props.historicalData.length).fill(null).concat(props.forecastData),
+      },
+    ],
+  };
+});
 </script>
+
+<style scoped>
+.chart {
+  width: 100%;
+  height: 400px;
+}
+</style>

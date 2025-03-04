@@ -2,45 +2,22 @@
   <div>
     <h2>Теория прогнозирования</h2>
     <p>Прогнозирование — это процесс оценки будущих значений на основе исторических данных.</p>
-    <div class="tabs">
-      <button
-        v-for="(tab, index) in tabs"
-        :key="index"
-        :class="['tab', { active: currentTab === index }]"
-        @click="currentTab = index"
-      >
-        {{ tab }}
-      </button>
-    </div>
-    <div class="tab-content">
+    <Tabs :tabs="tabs" v-slot="{ currentTab }">
       <component :is="components[currentTab]" />
-    </div>
+    </Tabs>
   </div>
 </template>
 
-<script>
-import { useStore } from '@/stores/store.js'
-
+<script setup>
+import { ref } from 'vue'
+import Tabs from '@/components/Tabs.vue'
 import LinearRegression from './Theory/LinearRegression.vue'
 import ArimaMethod from './Theory/ArimaMethod.vue'
 import RandomForest from './Theory/RandomForest.vue'
 import KnnMethod from './Theory/KnnMethod.vue'
 
-export default {
-  components: {
-    LinearRegression,
-    ArimaMethod,
-    RandomForest,
-    KnnMethod,
-  },
-  data() {
-    return {
-      currentTab: 0,
-      tabs: ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN'],
-      components: [LinearRegression, ArimaMethod, RandomForest, KnnMethod],
-    }
-  },
-}
+const tabs = ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN']
+const components = [LinearRegression, ArimaMethod, RandomForest, KnnMethod]
 </script>
 
 <style scoped>
