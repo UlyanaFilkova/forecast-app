@@ -10,12 +10,7 @@
       <div class="file-input-container">
         <input type="file" @change="handleFileUpload" />
         <span v-if="fileError" class="error">{{ fileError }}</span>
-        <select v-model="forecastMethod">
-          <option value="linear_regression">Метод простой линейной регрессии</option>
-          <option value="arima">Метод ARIMA</option>
-          <option value="random_forest">Метод случайных лесов</option>
-          <option value="knn">Метод KNN</option>
-        </select>
+
         <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
       </div>
     </form>
@@ -44,7 +39,6 @@ const MAX_FILE_SIZE_IN_BYTES = 2 * 1024 * 1024 // 2 MB
 const dataInput = ref('')
 const file = ref(null)
 const fileError = ref('')
-const forecastMethod = ref('arima')
 const showModal = ref(false)
 const dataLines = ref([])
 const numberSelected = ref(1)
@@ -92,8 +86,6 @@ const isSubmitButtonDisabled = computed(() => {
 })
 
 const submitForm = () => {
-  const userStore = useStore()
-  userStore.setMethod(forecastMethod.value)
   emit('data-submitted')
 }
 
@@ -106,7 +98,6 @@ const handleTextAreaUpload = (event) => {
   const userStore = useStore()
   userStore.setData(dataLines.value[0])
   userStore.setLabels('')
-  userStore.setMethod(forecastMethod.value)
 }
 
 const handleFileUpload = (event) => {
@@ -211,7 +202,6 @@ const confirmSelection = (selectedNumber, skipCellsParam, readingDirectionParam,
   const userStore = useStore()
 
   userStore.setData(extractedData.value)
-  userStore.setMethod(forecastMethod.value)
   userStore.setLabels(labels.value)
 
 }

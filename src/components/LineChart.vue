@@ -19,17 +19,14 @@ import {
   Filler,
 } from 'chart.js'
 
-// Регистрация компонентов Chart.js
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, Filler)
 
-// Принимаем пропсы
 const props = defineProps({
   historicalData: { type: Array, required: true },
   forecastData: { type: Array, required: true },
   chartOptions: { type: Object, required: true },
 })
 
-// Вычисляемые данные для графика
 const chartData = computed(() => {
   const historicalLabels = props.historicalData.map((_, index) => `${index + 1}`)
   const forecastLabels = props.forecastData.map((_, index) => `${props.historicalData.length + index + 1}`)

@@ -5,7 +5,7 @@
     <div class="chart-options-container">
       <div class="tabs">
         <button
-          v-for="option in chartOptions"
+          v-for="option in chartTypes"
           :key="option.value"
           :class="['tab', { active: chartType === option.value }]"
           @click="chartType = option.value"
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useStore } from '@/stores/store.js'
 import BarChart from './BarChart.vue'
 import LineChart from './LineChart.vue'
@@ -46,7 +46,7 @@ const forecastMethods = ref(['All Methods', 'Linear Regression', 'ARIMA', 'Rando
 const currentTab = ref(0)
 const selectedMethod = computed(() => forecastMethods.value[currentTab.value])
 
-const chartOptions = [
+let chartTypes = [
   { label: 'All Charts', value: 'all' },
   { label: 'Line Chart', value: 'line' },
   { label: 'Bar Chart', value: 'bar' },
@@ -54,6 +54,22 @@ const chartOptions = [
 ]
 
 const chartType = ref('all')
+
+const updateChartType = () => {
+  if (selectedMethod.value === 'All Methods') {
+    chartType.value = 'all'
+    chartTypes = []
+  }else{
+    chartType.value = 'line'
+    chartTypes = [
+      { label: 'Line Chart', value: 'line' },
+      { label: 'Bar Chart', value: 'bar' },
+      { label: 'Table', value: 'table' },
+    ]
+  }
+}
+
+watch(currentTab, updateChartType, {immediate: true})
 
 const chartConfig = ref({
   responsive: true,
@@ -75,8 +91,10 @@ const filteredForecastData = computed(() => {
   return forecastData.value[selectedMethod.value] || []
 })
 
-// Определение текущего компонента графика
 const currentChartType = computed(() => {
+  if (selectedMethod.value === 'All Methods') {
+    return AllCharts
+  }
   const chartMap = {
     line: LineChart,
     table: TableChart,
@@ -89,12 +107,10 @@ const currentChartType = computed(() => {
 const getTableData = () => {
   const rows = []
 
-  // Добавляем исторические данные
   historicalData.value.forEach((val, i) => {
     rows.push([`Месяц ${i + 1}`, val, '-'])
   })
 
-  // Добавляем прогнозируемые данные
   Object.entries(filteredForecastData.value).forEach(([method, values]) => {
     values.forEach((val, i) => {
       rows.push([`Месяц ${historicalData.value.length + i + 1}`, '-', val])
@@ -104,7 +120,6 @@ const getTableData = () => {
   return rows
 }
 
-// Генерация данных для Excel
 const getExcelData = () => {
   return getTableData().map(([month, historical, forecast]) => ({
     Месяц: month,
@@ -113,7 +128,6 @@ const getExcelData = () => {
   }))
 }
 
-// Скачать PDF
 const downloadPDF = () => {
   const doc = new jsPDF()
   autoTable(doc, {
@@ -123,7 +137,6 @@ const downloadPDF = () => {
   doc.save('table.pdf')
 }
 
-// Скачать Excel
 const downloadExcel = () => {
   const worksheet = XLSX.utils.json_to_sheet(getExcelData())
   const workbook = XLSX.utils.book_new()
