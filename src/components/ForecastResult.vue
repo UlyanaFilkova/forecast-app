@@ -25,7 +25,6 @@
       :historical-data="historicalData"
       :forecast-data="filteredForecastData"
       :chart-options="chartConfig"
-      :forecast-data-count="forecastSteps"
     />
 
 </template>
@@ -82,7 +81,6 @@ const chartConfig = ref({
 const store = useStore()
 const historicalData = computed(() => store.inputData)
 const forecastData = computed(() => store.chartData)
-const forecastSteps = 5
 
 const filteredForecastData = computed(() => {
   if (selectedMethod.value === 'All Methods') {

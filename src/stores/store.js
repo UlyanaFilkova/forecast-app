@@ -5,14 +5,9 @@ export const useStore = defineStore('userData', () => {
   const inputData = ref([])
   const chartData = ref([])
   const labels = ref([])
-  const method = ref('')
 
   function setData(data) {
     inputData.value = data
-  }
-
-  function setMethod(methodValue) {
-    method.value = methodValue
   }
 
   function setLabels(labelsValue) {
@@ -27,9 +22,7 @@ export const useStore = defineStore('userData', () => {
     inputData,
     chartData,
     labels,
-    method,
     setData,
-    setMethod,
     setLabels,
     setChartData,
   }

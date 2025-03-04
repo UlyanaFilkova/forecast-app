@@ -2,7 +2,7 @@
   <div id="app">
     <h1>Прогнозирование данных</h1>
     <DataInput @data-submitted="handleDataSubmitted" />
-    <ForecastResult v-if="chartData" />
+    <ForecastResult v-if="chartData"/>
     <TheorySource />
   </div>
 </template>
@@ -18,18 +18,16 @@ import TheorySource from './components/TheorySources.vue'
 const chartData = ref(null)
 const userStore = useStore()
 
-const handleDataSubmitted = async () => {
+const handleDataSubmitted = async (forecastDays) => {
   const requestData = {
     inputData: userStore.inputData,
-    forecast_steps: 5,
+    forecast_steps: forecastDays,
   }
 
   try {
     const response = await axios.post('http://localhost:5000/forecast', requestData)
-    console.log(response.data)
     chartData.value = response.data
     userStore.setChartData(chartData.value)
-    console.log(chartData.value)
   } catch (error) {
     console.error('Ошибка при запросе данных:', error)
   }
