@@ -30,10 +30,6 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  forecastDataCount: {
-    type: Number,
-    required: true,
-  },
   chartOptions: {
     type: Object,
     required: true,
@@ -42,18 +38,10 @@ const props = defineProps({
 
 const chartData = computed(() => {
   const historicalLabels = props.historicalData.map((_, index) => `${index + 1}`);
-  const forecastLabels = props.forecastDataCount > 0
-    ? Array(props.forecastDataCount).fill(0).map((_, idx) => `${props.historicalData.length + idx + 1}`)
+  console.log(props.forecastData)
+  const forecastLabels = props.forecastData['ARIMA'].length
+    ? Array(props.forecastData['ARIMA'].length).fill(0).map((_, idx) => `${props.historicalData.length + idx + 1}`)
     : [];
-
-  const lastHistoricalValue = props.historicalData[props.historicalData.length - 1];
-
-  // const randomForecasts = Array.from({ length: props.forecastDataCount }, () =>
-  //   Array(props.historicalData.length - 1).fill(null).concat(lastHistoricalValue).concat(
-  //     Array(props.forecastDataCount).fill(0).map(() => Math.floor(Math.random() * 100) + 50)
-  //   )
-  // );
-
 
   const datasets = [
     {

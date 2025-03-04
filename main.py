@@ -146,7 +146,7 @@ def forecast():
             except ValueError:
                 continue
 
-        forecast_steps = int(request_data.get('forecast_steps', 5))
+        forecast_steps = int(request_data.get('forecast_steps'))
 
         if not data:
             return jsonify({"error": "Invalid input"}), 400

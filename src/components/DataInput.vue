@@ -10,6 +10,14 @@
       <div class="file-input-container">
         <input type="file" @change="handleFileUpload" />
         <span v-if="fileError" class="error">{{ fileError }}</span>
+        <div class="forecast-days">
+          <label for="forecast-days">Количество дней:</label>
+          <select id="forecast-days" v-model="forecastDays">
+            <option v-for="day in 100" :key="day" :value="day">
+              {{ day }}
+            </option>
+          </select>
+        </div>
 
         <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
       </div>
@@ -44,6 +52,7 @@ const dataLines = ref([])
 const numberSelected = ref(1)
 const skipCells = ref(0)
 const readingDirection = ref('column')
+const forecastDays = ref(5)
 
 const fileValidation = {
   required,
@@ -86,7 +95,7 @@ const isSubmitButtonDisabled = computed(() => {
 })
 
 const submitForm = () => {
-  emit('data-submitted')
+  emit('data-submitted', forecastDays.value)
 }
 
 const handleTextAreaUpload = (event) => {
