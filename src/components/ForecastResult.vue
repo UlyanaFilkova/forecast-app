@@ -1,6 +1,6 @@
 <template>
   <h2>Результаты прогнозирования</h2>
-|
+
   <Tabs :tabs="forecastMethods" v-model:currentTab="currentTab">   </Tabs>
     <div class="chart-options-container">
       <div class="tabs">

@@ -2,7 +2,8 @@
   <div id="app">
     <h1>Прогнозирование данных</h1>
     <DataInput @data-submitted="handleDataSubmitted" />
-    <ForecastResult v-if="chartData"/>
+    <Loader v-if="isLoading" />
+    <ForecastResult v-if="!isLoading && chartData"/>
     <TheorySource />
   </div>
 </template>
@@ -14,11 +15,14 @@ import { useStore } from '@/stores/store.js'
 import DataInput from './components/DataInput.vue'
 import ForecastResult from './components/ForecastResult.vue'
 import TheorySource from './components/TheorySources.vue'
+import Loader from './components/Loader.vue'
 
+const isLoading = ref(false)
 const chartData = ref(null)
 const userStore = useStore()
 
 const handleDataSubmitted = async (forecastDays) => {
+  isLoading.value = true
   const requestData = {
     inputData: userStore.inputData,
     forecast_steps: forecastDays,
@@ -30,6 +34,8 @@ const handleDataSubmitted = async (forecastDays) => {
     userStore.setChartData(chartData.value)
   } catch (error) {
     console.error('Ошибка при запросе данных:', error)
+  }finally {
+    isLoading.value = false
   }
 }
 </script>
