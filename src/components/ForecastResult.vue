@@ -105,54 +105,38 @@ const currentChartType = computed(() => {
 })
 
 const getTableData = () => {
-  console.log("Forecast Data:", filteredForecastData.value) // Для отладки
-
   const rows = []
   let forecast = filteredForecastData.value
   let methods = []
 
   if (Array.isArray(forecast)) {
-    // Если прогноз – массив (один метод), превращаем в объект
+    // If the forecast is an array (one method), convert it to an object
     methods = ['Forecast']
     forecast = { Forecast: forecast }
   } else if (typeof forecast === 'object' && forecast !== null) {
-    // Если прогноз – объект с методами
+    // If forecast is an object with methods
     methods = Object.keys(forecast)
   } else {
     console.error("Unexpected forecast data structure:", forecast)
     return rows
   }
 
-  // Заголовки (№, Исторические данные, Названия методов)
-  rows.push(['N.', 'Data', ...methods])
+  rows.push(['', 'Data', ...methods])
 
   const historyLength = historicalData.value.length
 
-  // Добавляем исторические данные с пустыми прогнозами
   for (let i = 0; i < historyLength; i++) {
-    const row = [`${i + 1}`, historicalData.value[i], ...methods.map(() => '-')]
+    const row = [`${i + 1}`, historicalData.value[i], ...methods.map(() => '')]
     rows.push(row)
   }
 
-  // Определяем максимальную длину (учитываем пустые массивы!)
   const maxForecastLength = Math.max(...methods.map(m => (forecast[m] ? forecast[m].length : 0)))
 
   for (let i = 0; i < maxForecastLength; i++) {
-    const row = [`${historyLength + i + 1}`, '-', ...methods.map(method => forecast[method]?.[i] ?? '-')]
+    const row = [`${historyLength + i + 1}`, '', ...methods.map(method => forecast[method]?.[i] ?? '-')]
     rows.push(row)
   }
-  console.log("Generated Table:", rows) // Для отладки
   return rows
-}
-
-
-
-const getExcelData = () => {
-  return getTableData().map(([month, historical, forecast]) => ({
-    Месяц: month,
-    Данные: historical,
-    Прогноз: forecast,
-  }))
 }
 
 const downloadPDF = () => {
@@ -164,10 +148,14 @@ const downloadPDF = () => {
 }
 
 const downloadExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(getExcelData())
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Лист1')
-  XLSX.writeFile(workbook, 'table.xlsx')
+  const tableData = getTableData();
+
+  const dataWithoutHeaders = tableData.map(row => row.slice(1));
+
+  const worksheet = XLSX.utils.aoa_to_sheet(dataWithoutHeaders);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Лист1');
+  XLSX.writeFile(workbook, 'table.xlsx');
 }
 </script>
 
