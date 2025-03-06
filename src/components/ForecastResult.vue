@@ -36,6 +36,7 @@ import BarChart from './BarChart.vue'
 import LineChart from './LineChart.vue'
 import TableChart from './TableChart.vue'
 import AllCharts from './AllCharts.vue'
+import AllTable from './AllTable.vue'
 import Tabs from '@/components/Tabs.vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -57,7 +58,10 @@ const chartType = ref('all')
 const updateChartType = () => {
   if (selectedMethod.value === 'All Methods') {
     chartType.value = 'all'
-    chartTypes = []
+    chartTypes = [
+      { label: 'Line Chart', value: 'line' },
+      { label: 'Table', value: 'allTable' },
+    ]
   }else{
     chartType.value = 'line'
     chartTypes = [
@@ -90,13 +94,14 @@ const filteredForecastData = computed(() => {
 })
 
 const currentChartType = computed(() => {
-  if (selectedMethod.value === 'All Methods') {
-    return AllCharts
-  }
+  // if (selectedMethod.value === 'All Methods') {
+  //   return AllCharts
+  // }
   const chartMap = {
     line: LineChart,
     table: TableChart,
     all: AllCharts,
+    allTable: AllTable,
     bar: BarChart,
   }
   return chartMap[chartType.value] || AllCharts

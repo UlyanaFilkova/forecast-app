@@ -38,7 +38,6 @@ const props = defineProps({
 
 const chartData = computed(() => {
   const historicalLabels = props.historicalData.map((_, index) => `${index + 1}`);
-  console.log(props.forecastData)
   const forecastLabels = props.forecastData['ARIMA'].length
     ? Array(props.forecastData['ARIMA'].length).fill(0).map((_, idx) => `${props.historicalData.length + idx + 1}`)
     : [];
