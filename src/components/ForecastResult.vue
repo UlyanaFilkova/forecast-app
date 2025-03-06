@@ -59,7 +59,7 @@ const updateChartType = () => {
   if (selectedMethod.value === 'All Methods') {
     chartType.value = 'all'
     chartTypes = [
-      { label: 'Line Chart', value: 'line' },
+      { label: 'All Charts', value: 'all' },
       { label: 'Table', value: 'allTable' },
     ]
   }else{

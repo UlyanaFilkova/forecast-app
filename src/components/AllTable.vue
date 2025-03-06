@@ -5,7 +5,7 @@
       <tr>
         <th>Месяц</th>
         <th>Исторические данные</th>
-        <th>Прогноз</th>
+        <th v-for="method in forecastMethods" :key="method">{{ method }}</th>
       </tr>
       </thead>
       <tbody>

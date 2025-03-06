@@ -6,28 +6,6 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-
-
-# # Метод экспоненциального сглаживания
-# def exponential_smoothing_forecast(data, smoothing_factor):
-#     """
-#     Прогнозирование с использованием метода экспоненциального сглаживания (ручная реализация).
-
-#     :param data: Массив чисел (исторические данные).
-#     :param smoothing_factor: Сглаживающий фактор (alpha).
-#     :return: Сглаженные значения.
-#     """
-
-#     N = len(data)  # Число периодов
-#     smoothed_values = [0] * (N + 1)  # Массив для сглаженных значений
-#     smoothed_values[0] = data[0]  # Начальное значение
-
-#     # Расчет сглаженных значений
-#     for i in range(1, N + 1):
-#         smoothed_values[i] = smoothing_factor * data[i - 1] + (1 - smoothing_factor) * smoothed_values[i - 1]
-
-#     return [smoothed_values[N]]
 
 # Метод простой линейной регрессии
 def linear_regression_forecast(data, forecast_steps):
@@ -50,7 +28,7 @@ def linear_regression_forecast(data, forecast_steps):
     x_future = np.arange(len(data), len(data) + forecast_steps).reshape(-1, 1)
     predictions = model.predict(x_future)
 
-    return predictions.tolist()
+    return [round(p, 7) for p in predictions]
 
 # Метод ARIMA
 def arima_forecast(data, forecast_steps, order=(1, 1, 1)):
@@ -69,7 +47,7 @@ def arima_forecast(data, forecast_steps, order=(1, 1, 1)):
     # Прогнозируем будущие значения
     forecast = model_fit.forecast(steps=forecast_steps)
 
-    return forecast.tolist()
+    return [round(p, 7) for p in forecast]
 
 # Метод случайных лесов
 def random_forest_forecast(data, forecast_steps):
@@ -96,7 +74,7 @@ def random_forest_forecast(data, forecast_steps):
         model.fit(x_current, y_current)  # Обучаем модель на обновленных данных
         next_prediction = model.predict([[len(current_data)]])[0]  # Прогнозируем следующее значение
 
-        predictions.append(next_prediction)
+        predictions.append(round(next_prediction, 7))
         current_data.append(next_prediction)  # Добавляем прогноз в текущие данные для следующего шага
 
     return predictions
@@ -125,7 +103,7 @@ def knn_forecast(data, forecast_steps, n_neighbors=3):
         model.fit(x_current, y_current)  # Обучаем модель на обновленных данных
         next_prediction = model.predict([[len(current_data)]])[0]  # Прогнозируем следующее значение
 
-        predictions.append(next_prediction)
+        predictions.append(round(next_prediction, 7))
         current_data.append(next_prediction)  # Добавляем прогноз в текущие данные для следующего шага
 
     return predictions
