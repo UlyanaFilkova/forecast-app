@@ -3,8 +3,8 @@
     <table>
       <thead>
       <tr>
-        <th>Месяц</th>
-        <th>Исторические данные</th>
+        <th>№</th>
+        <th>Данные</th>
         <th>Прогноз</th>
       </tr>
       </thead>
@@ -40,33 +40,30 @@ const props = defineProps({
   },
 })
 
-// Формируем данные для таблицы
 const tableData = computed(() => {
   return [
     ...props.historicalData.map((value, index) => ({
-      month: `Месяц ${index + 1}`,
+      month: `${index + 1}`,
       historical: value,
-      forecast: '-',
+      forecast: '',
     })),
     ...props.forecastData.map((value, index) => ({
-      month: `Месяц ${props.historicalData.length + index + 1}`,
-      historical: '-',
+      month: `${props.historicalData.length + index + 1}`,
+      historical: '',
       forecast: value,
     })),
   ]
 })
 
-// Скачать PDF
 const downloadPDF = () => {
   const doc = new jsPDF()
   autoTable(doc, {
-    head: [['Месяц', 'Исторические данные', 'Прогноз']],
+    head: [['№', 'Данные', 'Прогноз']],
     body: tableData.value.map(({ month, historical, forecast }) => [month, historical, forecast]),
   })
   doc.save('table.pdf')
 }
 
-// Скачать Excel
 const downloadExcel = () => {
   const worksheet = XLSX.utils.json_to_sheet(tableData.value)
   const workbook = XLSX.utils.book_new()

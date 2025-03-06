@@ -94,9 +94,6 @@ const filteredForecastData = computed(() => {
 })
 
 const currentChartType = computed(() => {
-  // if (selectedMethod.value === 'All Methods') {
-  //   return AllCharts
-  // }
   const chartMap = {
     line: LineChart,
     table: TableChart,
@@ -108,25 +105,52 @@ const currentChartType = computed(() => {
 })
 
 const getTableData = () => {
+  console.log("Forecast Data:", filteredForecastData.value) // Для отладки
+
   const rows = []
+  let forecast = filteredForecastData.value
+  let methods = []
 
-  historicalData.value.forEach((val, i) => {
-    rows.push([`Месяц ${i + 1}`, val, '-'])
-  })
+  if (Array.isArray(forecast)) {
+    // Если прогноз – массив (один метод), превращаем в объект
+    methods = ['Forecast']
+    forecast = { Forecast: forecast }
+  } else if (typeof forecast === 'object' && forecast !== null) {
+    // Если прогноз – объект с методами
+    methods = Object.keys(forecast)
+  } else {
+    console.error("Unexpected forecast data structure:", forecast)
+    return rows
+  }
 
-  Object.entries(filteredForecastData.value).forEach(([method, values]) => {
-    values.forEach((val, i) => {
-      rows.push([`Месяц ${historicalData.value.length + i + 1}`, '-', val])
-    })
-  })
+  // Заголовки (№, Исторические данные, Названия методов)
+  rows.push(['N.', 'Data', ...methods])
 
+  const historyLength = historicalData.value.length
+
+  // Добавляем исторические данные с пустыми прогнозами
+  for (let i = 0; i < historyLength; i++) {
+    const row = [`${i + 1}`, historicalData.value[i], ...methods.map(() => '-')]
+    rows.push(row)
+  }
+
+  // Определяем максимальную длину (учитываем пустые массивы!)
+  const maxForecastLength = Math.max(...methods.map(m => (forecast[m] ? forecast[m].length : 0)))
+
+  for (let i = 0; i < maxForecastLength; i++) {
+    const row = [`${historyLength + i + 1}`, '-', ...methods.map(method => forecast[method]?.[i] ?? '-')]
+    rows.push(row)
+  }
+  console.log("Generated Table:", rows) // Для отладки
   return rows
 }
+
+
 
 const getExcelData = () => {
   return getTableData().map(([month, historical, forecast]) => ({
     Месяц: month,
-    'Исторические данные': historical,
+    Данные: historical,
     Прогноз: forecast,
   }))
 }
@@ -134,7 +158,6 @@ const getExcelData = () => {
 const downloadPDF = () => {
   const doc = new jsPDF()
   autoTable(doc, {
-    head: [['Месяц', 'Исторические данные', 'Прогноз']],
     body: getTableData(),
   })
   doc.save('table.pdf')

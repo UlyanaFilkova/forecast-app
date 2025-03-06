@@ -3,8 +3,8 @@
     <table>
       <thead>
       <tr>
-        <th>Месяц</th>
-        <th>Исторические данные</th>
+        <th>№</th>
+        <th>Данные</th>
         <th v-for="method in forecastMethods" :key="method">{{ method }}</th>
       </tr>
       </thead>
@@ -13,7 +13,7 @@
         <td>{{ row.month }}</td>
         <td>{{ row.historical }}</td>
         <td v-for="method in forecastMethods" :key="method">
-          {{ row.forecast[method] || '-' }}
+          {{ row.forecast[method] || '' }}
         </td>
       </tr>
       </tbody>
@@ -44,32 +44,29 @@ const props = defineProps({
 
 const forecastMethods = computed(() => Object.keys(props.forecastData))
 
-// Формируем данные для таблицы
 const tableData = computed(() => {
   const historicalLength = props.historicalData.length
   const maxForecastLength = Math.max(...forecastMethods.value.map(method => props.forecastData[method].length))
 
   const data = []
 
-  // Добавляем исторические данные
   props.historicalData.forEach((value, index) => {
     data.push({
-      month: `Месяц ${index + 1}`,
+      month: `${index + 1}`,
       historical: value,
       forecast: {},
     })
   })
 
-  // Добавляем прогнозные данные
   for (let i = 0; i < maxForecastLength; i++) {
     const row = {
-      month: `Месяц ${historicalLength + i + 1}`,
-      historical: '-',
+      month: `${historicalLength + i + 1}`,
+      historical: '',
       forecast: {},
     }
 
     forecastMethods.value.forEach(method => {
-      row.forecast[method] = props.forecastData[method][i] || '-'
+      row.forecast[method] = props.forecastData[method][i] || ''
     })
 
     data.push(row)
@@ -78,17 +75,15 @@ const tableData = computed(() => {
   return data
 })
 
-// Скачать PDF
 const downloadPDF = () => {
   const doc = new jsPDF()
   autoTable(doc, {
-    head: [['Месяц', 'Исторические данные', 'Прогноз']],
+    head: [['№', 'Данные', 'Прогноз']],
     body: tableData.value.map(({ month, historical, forecast }) => [month, historical, forecast]),
   })
   doc.save('table.pdf')
 }
 
-// Скачать Excel
 const downloadExcel = () => {
   const worksheet = XLSX.utils.json_to_sheet(tableData.value)
   const workbook = XLSX.utils.book_new()
