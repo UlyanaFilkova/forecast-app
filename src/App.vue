@@ -28,6 +28,8 @@ const handleDataSubmitted = async (forecastDays) => {
     forecast_steps: forecastDays,
   }
 
+  console.log(requestData)
+
   try {
     const response = await axios.post('http://localhost:5000/forecast', requestData)
     chartData.value = response.data

@@ -5,8 +5,10 @@
       <textarea
         v-model="dataInput"
         @change="handleTextAreaUpload"
-        placeholder="Введите текст здесь или прикрепите файл"
+        placeholder="Введите исторические данные, разделенные пробелами"
       ></textarea>
+      <span v-if="textInputError" class="error">{{ textInputError }}</span>
+
       <div class="file-input-container">
         <input type="file" id="file-upload" @change="handleFileUpload" ref="fileInput" hidden />
 
@@ -62,20 +64,7 @@ const skipCells = ref(0)
 const readingDirection = ref('column')
 const forecastDays = ref(5)
 const fileInput = ref(null)
-
-const fileValidation = {
-  required,
-  isFileType: (value) => {
-    if (!value) return true
-    const validExtensions = ['.xls', '.xlsx', '.txt']
-    const fileName = value.name.toLowerCase()
-    return validExtensions.some((ext) => fileName.endsWith(ext))
-  },
-  maxSize: (value) => {
-    if (!value) return true
-    return value.size <= MAX_FILE_SIZE_IN_BYTES
-  },
-}
+const textInputError = ref('')
 
 const v$ = useVuelidate({
   required,
@@ -111,7 +100,22 @@ const triggerFileUpload = () => {
   fileInput.value.click()
 }
 
+const validateTextInput = () => {
+  const numberRegex = /^-?\d+(\.\d+)?(\s-?\d+(\.\d+)?)*$/
+
+  if (!numberRegex.test(dataInput.value.trim())) {
+    textInputError.value = 'Ввод может содержать только числа (целые или с точкой), разделенные пробелами'
+  } else {
+    textInputError.value = ''
+  }
+}
+
 const handleTextAreaUpload = (event) => {
+  validateTextInput()
+  if (textInputError.value) {
+    return;
+  }
+
   dataLines.value[0] = dataInput.value
     .split(' ')
     .map((item) => item.trim().replace(/\r/g, ''))
@@ -138,7 +142,7 @@ const handleFileUpload = (event) => {
     if (v$.required.$invalid) {
       fileError.value = 'Загрузите файл или введите данные в текстовое поле'
     } else if (v$.isFileType.$invalid) {
-      fileError.value = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
+      fileError.value = 'Неверный формат файла. Допустимые форматы: .txt, .xlsx, .xls'
     } else if (v$.maxSize.$invalid) {
       fileError.value = `Формат файла должен быть меньше ${MAX_FILE_SIZE_IN_BYTES / 1024 / 1024} MB.`
     }
@@ -151,7 +155,7 @@ const handleFileUpload = (event) => {
       } else if (fileExtension === 'xls' || fileExtension === 'xlsx') {
         readExcelFile(selectedFile)
       } else {
-        fileError.value = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
+        fileError.value = 'Неверный формат файла. Допустимые форматы: .txt, .xlsx, .xls'
       }
     }
   }
@@ -160,12 +164,16 @@ const handleFileUpload = (event) => {
 const readTextFile = (file) => {
   const reader = new FileReader()
   reader.onload = (e) => {
-    dataLines.value = e.target.result.split('\n').map((line) =>
-      line
-        .split(' ')
-        .map((item) => item.trim().replace(/\r/g, ''))
-        .filter((item) => item !== '')
-    )
+    const content = e.target.result.trim().replace(/\r/g, '')
+    const numberRegex = /^-?\d+(\.\d+)?(\s-?\d+(\.\d+)?)*$/
+
+    if (!numberRegex.test(content)) {
+      fileError.value = 'Файл должен содержать только числа, разделенные пробелами'
+      return
+    }
+
+    dataLines.value = [content.split(/\s+/).map(Number)]
+    dataInput.value = content;
   }
   reader.readAsText(file)
   showModal.value = true
@@ -181,10 +189,23 @@ const readExcelFile = (file) => {
     const worksheet = workbook.worksheets[0]
 
     dataLines.value = []
-    worksheet.eachRow((row, rowNumber) => {
-      const rowData = row.values.slice(1)
+    let isValid = true
+    worksheet.eachRow((row) => {
+      const rowData = row.values.slice(1).map(value => {
+        if (typeof value !== 'number') {
+          isValid = false;
+        }
+        return value;
+      });
       dataLines.value.push(rowData)
     })
+
+    if (!isValid) {
+      fileError.value = 'Файл должен содержать только числа';
+      return;
+    }
+
+    dataInput.value = dataLines.value.map(row => row.join(' ')).join('\n');
   }
 
   reader.readAsArrayBuffer(file)
@@ -292,5 +313,9 @@ select {
 
 select:focus {
   outline: none;
+}
+
+span{
+  color: #b13bff;
 }
 </style>

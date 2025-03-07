@@ -28,7 +28,6 @@ const props = defineProps({
 })
 
 const chartData = computed(() => {
-  console.log(props.forecastData)
   const historicalLabels = props.historicalData.map((_, index) => `${index + 1}`)
   const forecastLabels = props.forecastData.map((_, index) => `${props.historicalData.length + index + 1}`)
   const allLabels = [...historicalLabels, ...forecastLabels]
