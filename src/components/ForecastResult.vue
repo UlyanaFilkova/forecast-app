@@ -4,19 +4,20 @@
   <Tabs :tabs="forecastMethods" v-model:currentTab="currentTab">   </Tabs>
     <div class="chart-options-container">
       <div class="tabs">
-        <button
+
+        <BasicButton
           v-for="option in chartTypes"
           :key="option.value"
-          :class="['tab', { active: chartType === option.value }]"
+          :class="{ active: chartType === option.value }"
           @click="chartType = option.value"
         >
           {{ option.label }}
-        </button>
+        </BasicButton>
       </div>
 
       <div class="buttons-container">
-        <button @click="downloadPDF">Скачать PDF</button>
-        <button @click="downloadExcel">Скачать Excel</button>
+        <BasicButton @click="downloadPDF">Скачать PDF</BasicButton>
+        <BasicButton @click="downloadExcel">Скачать Excel</BasicButton>
       </div>
     </div>
 
@@ -38,13 +39,15 @@ import TableChart from './TableChart.vue'
 import AllCharts from './AllCharts.vue'
 import AllTable from './AllTable.vue'
 import Tabs from '@/components/Tabs.vue'
+import BasicButton from '@/components/basic/BasicButton.vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 
+const store = useStore()
 const forecastMethods = ref(['All Methods', 'Linear Regression', 'ARIMA', 'Random Forest', 'KNN'])
-const currentTab = ref(0)
 const selectedMethod = computed(() => forecastMethods.value[currentTab.value])
+const currentTab = ref(0)
 
 let chartTypes = [
   { label: 'All Charts', value: 'all' },
@@ -82,7 +85,6 @@ const chartConfig = ref({
   },
 })
 
-const store = useStore()
 const historicalData = computed(() => store.inputData)
 const forecastData = computed(() => store.chartData)
 

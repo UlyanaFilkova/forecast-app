@@ -8,7 +8,11 @@
         placeholder="Введите текст здесь или прикрепите файл"
       ></textarea>
       <div class="file-input-container">
-        <input type="file" @change="handleFileUpload" />
+        <input type="file" id="file-upload" @change="handleFileUpload" ref="fileInput" hidden />
+
+        <BasicButton @click="triggerFileUpload">
+          Выбрать файл
+        </BasicButton>
         <span v-if="fileError" class="error">{{ fileError }}</span>
         <div class="forecast-days">
           <label for="forecast-days">Количество дней:</label>
@@ -19,7 +23,10 @@
           </select>
         </div>
 
-        <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
+        <BasicButton type="submit" :disabled="isSubmitButtonDisabled">
+          Загрузить данные
+        </BasicButton>
+
       </div>
     </form>
     <TableModal
@@ -40,6 +47,7 @@ import { required } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
 import ExcelJS from 'exceljs'
 import TableModal from './TableModal.vue'
+import BasicButton from '@/components/basic/BasicButton.vue'
 
 const emit = defineEmits(['data-submitted'])
 const MAX_FILE_SIZE_IN_BYTES = 2 * 1024 * 1024 // 2 MB
@@ -53,6 +61,7 @@ const numberSelected = ref(1)
 const skipCells = ref(0)
 const readingDirection = ref('column')
 const forecastDays = ref(5)
+const fileInput = ref(null)
 
 const fileValidation = {
   required,
@@ -96,6 +105,10 @@ const isSubmitButtonDisabled = computed(() => {
 
 const submitForm = () => {
   emit('data-submitted', forecastDays.value)
+}
+
+const triggerFileUpload = () => {
+  fileInput.value.click()
 }
 
 const handleTextAreaUpload = (event) => {
@@ -251,29 +264,6 @@ textarea:focus {
 }
 textarea::placeholder {
   font-size: 16px;
-}
-
-input::file-selector-button,
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 15px;
-  cursor: pointer;
-  font-size: 16px;
-  /* margin-top: 10px; */
-  transition: background-color 0.3s;
-}
-
-input::file-selector-button:hover,
-button:hover {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  cursor: auto;
-  background-color: #889;
 }
 
 .file-input-container {
