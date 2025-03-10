@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Введите данные</h2>
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" @keydown.enter="handleEnterPress">
       <textarea
         v-model="dataInput"
         @change="handleTextAreaUpload"
@@ -247,6 +247,14 @@ const confirmSelection = (selectedNumber, skipCellsParam, readingDirectionParam,
   userStore.setData(extractedData.value)
   userStore.setLabels(labels.value)
 
+}
+
+const handleEnterPress = (event) => {
+  // Если есть текст в поле ввода, "нажимаем" на кнопку "Загрузить данные"
+  if (dataInput.value.trim().length > 0) {
+    event.preventDefault();  // Останавливаем обычное поведение для Enter (например, отправку формы)
+    submitForm();  // Вызываем submit
+  }
 }
 
 </script>
