@@ -5,14 +5,16 @@
       <tr>
         <th>№</th>
         <th>Данные</th>
-        <th>Прогноз</th>
+        <th v-for="method in forecastMethods" :key="method">{{ method }}</th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="(row, index) in tableData" :key="index">
         <td>{{ row.month }}</td>
         <td>{{ row.historical }}</td>
-        <td>{{ row.forecast }}</td>
+        <td v-for="method in forecastMethods" :key="method">
+          {{ row.forecast[method] || '' }}
+        </td>
       </tr>
       </tbody>
     </table>
@@ -35,24 +37,42 @@ const props = defineProps({
     required: true,
   },
   forecastData: {
-    type: Array,
+    type: Object,
     required: true,
   },
 })
 
+const forecastMethods = computed(() => Object.keys(props.forecastData))
+
 const tableData = computed(() => {
-  return [
-    ...props.historicalData.map((value, index) => ({
+  const historicalLength = props.historicalData.length
+  const maxForecastLength = Math.max(...forecastMethods.value.map(method => props.forecastData[method].length))
+
+  const data = []
+
+  props.historicalData.forEach((value, index) => {
+    data.push({
       month: `${index + 1}`,
       historical: value,
-      forecast: '',
-    })),
-    ...props.forecastData.map((value, index) => ({
-      month: `${props.historicalData.length + index + 1}`,
+      forecast: {},
+    })
+  })
+
+  for (let i = 0; i < maxForecastLength; i++) {
+    const row = {
+      month: `${historicalLength + i + 1}`,
       historical: '',
-      forecast: value,
-    })),
-  ]
+      forecast: {},
+    }
+
+    forecastMethods.value.forEach(method => {
+      row.forecast[method] = props.forecastData[method][i] || ''
+    })
+
+    data.push(row)
+  }
+
+  return data
 })
 
 const downloadPDF = () => {

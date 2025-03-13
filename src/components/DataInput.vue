@@ -1,14 +1,20 @@
 <template>
   <div>
     <h2>Введите данные</h2>
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" @keydown.enter="handleEnterPress">
       <textarea
         v-model="dataInput"
         @change="handleTextAreaUpload"
-        placeholder="Введите текст здесь или прикрепите файл"
+        placeholder="Введите исторические данные, разделенные пробелами"
       ></textarea>
+      <span v-if="textInputError" class="error">{{ textInputError }}</span>
+
       <div class="file-input-container">
-        <input type="file" @change="handleFileUpload" />
+        <input type="file" id="file-upload" @change="handleFileUpload" ref="fileInput" hidden />
+
+        <BasicButton @click="triggerFileUpload">
+          Выбрать файл
+        </BasicButton>
         <span v-if="fileError" class="error">{{ fileError }}</span>
         <div class="forecast-days">
           <label for="forecast-days">Количество дней:</label>
@@ -19,7 +25,10 @@
           </select>
         </div>
 
-        <button type="submit" :disabled="isSubmitButtonDisabled">Загрузить данные</button>
+        <BasicButton type="submit" :disabled="isSubmitButtonDisabled">
+          Загрузить данные
+        </BasicButton>
+
       </div>
     </form>
     <TableModal
@@ -40,6 +49,7 @@ import { required } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
 import ExcelJS from 'exceljs'
 import TableModal from './TableModal.vue'
+import BasicButton from '@/components/basic/BasicButton.vue'
 
 const emit = defineEmits(['data-submitted'])
 const MAX_FILE_SIZE_IN_BYTES = 2 * 1024 * 1024 // 2 MB
@@ -53,20 +63,8 @@ const numberSelected = ref(1)
 const skipCells = ref(0)
 const readingDirection = ref('column')
 const forecastDays = ref(5)
-
-const fileValidation = {
-  required,
-  isFileType: (value) => {
-    if (!value) return true
-    const validExtensions = ['.xls', '.xlsx', '.txt']
-    const fileName = value.name.toLowerCase()
-    return validExtensions.some((ext) => fileName.endsWith(ext))
-  },
-  maxSize: (value) => {
-    if (!value) return true
-    return value.size <= MAX_FILE_SIZE_IN_BYTES
-  },
-}
+const fileInput = ref(null)
+const textInputError = ref('')
 
 const v$ = useVuelidate({
   required,
@@ -98,7 +96,26 @@ const submitForm = () => {
   emit('data-submitted', forecastDays.value)
 }
 
+const triggerFileUpload = () => {
+  fileInput.value.click()
+}
+
+const validateTextInput = () => {
+  const numberRegex = /^-?\d+(\.\d+)?(\s-?\d+(\.\d+)?)*$/
+
+  if (!numberRegex.test(dataInput.value.trim())) {
+    textInputError.value = 'Ввод может содержать только числа (целые или с точкой), разделенные пробелами'
+  } else {
+    textInputError.value = ''
+  }
+}
+
 const handleTextAreaUpload = (event) => {
+  validateTextInput()
+  if (textInputError.value) {
+    return;
+  }
+
   dataLines.value[0] = dataInput.value
     .split(' ')
     .map((item) => item.trim().replace(/\r/g, ''))
@@ -125,7 +142,7 @@ const handleFileUpload = (event) => {
     if (v$.required.$invalid) {
       fileError.value = 'Загрузите файл или введите данные в текстовое поле'
     } else if (v$.isFileType.$invalid) {
-      fileError.value = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
+      fileError.value = 'Неверный формат файла. Допустимые форматы: .txt, .xlsx, .xls'
     } else if (v$.maxSize.$invalid) {
       fileError.value = `Формат файла должен быть меньше ${MAX_FILE_SIZE_IN_BYTES / 1024 / 1024} MB.`
     }
@@ -138,7 +155,7 @@ const handleFileUpload = (event) => {
       } else if (fileExtension === 'xls' || fileExtension === 'xlsx') {
         readExcelFile(selectedFile)
       } else {
-        fileError.value = 'Неверный формат файла. Допустимые форматы: Excel или TXT.'
+        fileError.value = 'Неверный формат файла. Допустимые форматы: .txt, .xlsx, .xls'
       }
     }
   }
@@ -147,12 +164,16 @@ const handleFileUpload = (event) => {
 const readTextFile = (file) => {
   const reader = new FileReader()
   reader.onload = (e) => {
-    dataLines.value = e.target.result.split('\n').map((line) =>
-      line
-        .split(' ')
-        .map((item) => item.trim().replace(/\r/g, ''))
-        .filter((item) => item !== '')
-    )
+    const content = e.target.result.trim().replace(/\r/g, '')
+    const numberRegex = /^-?\d+(\.\d+)?(\s-?\d+(\.\d+)?)*$/
+
+    if (!numberRegex.test(content)) {
+      fileError.value = 'Файл должен содержать только числа, разделенные пробелами'
+      return
+    }
+
+    dataLines.value = [content.split(/\s+/).map(Number)]
+    dataInput.value = content;
   }
   reader.readAsText(file)
   showModal.value = true
@@ -168,10 +189,23 @@ const readExcelFile = (file) => {
     const worksheet = workbook.worksheets[0]
 
     dataLines.value = []
-    worksheet.eachRow((row, rowNumber) => {
-      const rowData = row.values.slice(1)
+    let isValid = true
+    worksheet.eachRow((row) => {
+      const rowData = row.values.slice(1).map(value => {
+        if (typeof value !== 'number') {
+          isValid = false;
+        }
+        return value;
+      });
       dataLines.value.push(rowData)
     })
+
+    if (!isValid) {
+      fileError.value = 'Файл должен содержать только числа';
+      return;
+    }
+
+    dataInput.value = dataLines.value.map(row => row.join(' ')).join('\n');
   }
 
   reader.readAsArrayBuffer(file)
@@ -215,6 +249,14 @@ const confirmSelection = (selectedNumber, skipCellsParam, readingDirectionParam,
 
 }
 
+const handleEnterPress = (event) => {
+  // Если есть текст в поле ввода, "нажимаем" на кнопку "Загрузить данные"
+  if (dataInput.value.trim().length > 0) {
+    event.preventDefault();  // Останавливаем обычное поведение для Enter (например, отправку формы)
+    submitForm();  // Вызываем submit
+  }
+}
+
 </script>
 
 <style scoped>
@@ -253,29 +295,6 @@ textarea::placeholder {
   font-size: 16px;
 }
 
-input::file-selector-button,
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 15px;
-  cursor: pointer;
-  font-size: 16px;
-  /* margin-top: 10px; */
-  transition: background-color 0.3s;
-}
-
-input::file-selector-button:hover,
-button:hover {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  cursor: auto;
-  background-color: #889;
-}
-
 .file-input-container {
   display: flex;
   align-items: center;
@@ -302,5 +321,9 @@ select {
 
 select:focus {
   outline: none;
+}
+
+span{
+  color: #b13bff;
 }
 </style>

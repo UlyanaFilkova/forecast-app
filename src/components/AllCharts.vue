@@ -38,7 +38,6 @@ const props = defineProps({
 
 const chartData = computed(() => {
   const historicalLabels = props.historicalData.map((_, index) => `${index + 1}`);
-  console.log(props.forecastData)
   const forecastLabels = props.forecastData['ARIMA'].length
     ? Array(props.forecastData['ARIMA'].length).fill(0).map((_, idx) => `${props.historicalData.length + idx + 1}`)
     : [];
@@ -54,13 +53,17 @@ const chartData = computed(() => {
     }
   ];
 
-  Object.entries(props.forecastData).forEach(([method, values]) => {
+  const methodOrder = ['Linear Regression', 'ARIMA', 'Random Forest', 'KNN'];
+
+  const sortedMethods = methodOrder.filter((method) => method in props.forecastData);
+
+  sortedMethods.forEach((method) => {
     datasets.push({
       label: method,
       backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`,
       borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
       fill: true,
-      data: [...Array(props.historicalData.length - 1).fill(null), props.historicalData.at(-1), ...values],
+      data: [...Array(props.historicalData.length - 1).fill(null), props.historicalData.at(-1), ...props.forecastData[method]],
       yAxisID: 'y',
     });
   });

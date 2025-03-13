@@ -1,22 +1,23 @@
 <template>
   <h2>Результаты прогнозирования</h2>
-|
+
   <Tabs :tabs="forecastMethods" v-model:currentTab="currentTab">   </Tabs>
     <div class="chart-options-container">
       <div class="tabs">
-        <button
+
+        <BasicButton
           v-for="option in chartTypes"
           :key="option.value"
-          :class="['tab', { active: chartType === option.value }]"
+          :class="{ active: chartType === option.value }"
           @click="chartType = option.value"
         >
           {{ option.label }}
-        </button>
+        </BasicButton>
       </div>
 
       <div class="buttons-container">
-        <button @click="downloadPDF">Скачать PDF</button>
-        <button @click="downloadExcel">Скачать Excel</button>
+        <BasicButton @click="downloadPDF">Скачать PDF</BasicButton>
+        <BasicButton @click="downloadExcel">Скачать Excel</BasicButton>
       </div>
     </div>
 
@@ -36,14 +37,17 @@ import BarChart from './BarChart.vue'
 import LineChart from './LineChart.vue'
 import TableChart from './TableChart.vue'
 import AllCharts from './AllCharts.vue'
+import AllTable from './AllTable.vue'
 import Tabs from '@/components/Tabs.vue'
+import BasicButton from '@/components/basic/BasicButton.vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 
+const store = useStore()
 const forecastMethods = ref(['All Methods', 'Linear Regression', 'ARIMA', 'Random Forest', 'KNN'])
-const currentTab = ref(0)
 const selectedMethod = computed(() => forecastMethods.value[currentTab.value])
+const currentTab = ref(0)
 
 let chartTypes = [
   { label: 'All Charts', value: 'all' },
@@ -57,7 +61,10 @@ const chartType = ref('all')
 const updateChartType = () => {
   if (selectedMethod.value === 'All Methods') {
     chartType.value = 'all'
-    chartTypes = []
+    chartTypes = [
+      { label: 'All Charts', value: 'all' },
+      { label: 'Table', value: 'allTable' },
+    ]
   }else{
     chartType.value = 'line'
     chartTypes = [
@@ -78,7 +85,6 @@ const chartConfig = ref({
   },
 })
 
-const store = useStore()
 const historicalData = computed(() => store.inputData)
 const forecastData = computed(() => store.chartData)
 
@@ -90,13 +96,11 @@ const filteredForecastData = computed(() => {
 })
 
 const currentChartType = computed(() => {
-  if (selectedMethod.value === 'All Methods') {
-    return AllCharts
-  }
   const chartMap = {
     line: LineChart,
     table: TableChart,
     all: AllCharts,
+    allTable: AllTable,
     bar: BarChart,
   }
   return chartMap[chartType.value] || AllCharts
@@ -104,42 +108,56 @@ const currentChartType = computed(() => {
 
 const getTableData = () => {
   const rows = []
+  let forecast = filteredForecastData.value
+  let methods = []
 
-  historicalData.value.forEach((val, i) => {
-    rows.push([`Месяц ${i + 1}`, val, '-'])
-  })
+  if (Array.isArray(forecast)) {
+    // If the forecast is an array (one method), convert it to an object
+    methods = ['Forecast']
+    forecast = { Forecast: forecast }
+  } else if (typeof forecast === 'object' && forecast !== null) {
+    // If forecast is an object with methods
+    methods = Object.keys(forecast)
+  } else {
+    console.error("Unexpected forecast data structure:", forecast)
+    return rows
+  }
 
-  Object.entries(filteredForecastData.value).forEach(([method, values]) => {
-    values.forEach((val, i) => {
-      rows.push([`Месяц ${historicalData.value.length + i + 1}`, '-', val])
-    })
-  })
+  rows.push(['', 'Data', ...methods])
 
+  const historyLength = historicalData.value.length
+
+  for (let i = 0; i < historyLength; i++) {
+    const row = [`${i + 1}`, historicalData.value[i], ...methods.map(() => '')]
+    rows.push(row)
+  }
+
+  const maxForecastLength = Math.max(...methods.map(m => (forecast[m] ? forecast[m].length : 0)))
+
+  for (let i = 0; i < maxForecastLength; i++) {
+    const row = [`${historyLength + i + 1}`, '', ...methods.map(method => forecast[method]?.[i] ?? '-')]
+    rows.push(row)
+  }
   return rows
-}
-
-const getExcelData = () => {
-  return getTableData().map(([month, historical, forecast]) => ({
-    Месяц: month,
-    'Исторические данные': historical,
-    Прогноз: forecast,
-  }))
 }
 
 const downloadPDF = () => {
   const doc = new jsPDF()
   autoTable(doc, {
-    head: [['Месяц', 'Исторические данные', 'Прогноз']],
     body: getTableData(),
   })
   doc.save('table.pdf')
 }
 
 const downloadExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(getExcelData())
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Лист1')
-  XLSX.writeFile(workbook, 'table.xlsx')
+  const tableData = getTableData();
+
+  const dataWithoutHeaders = tableData.map(row => row.slice(1));
+
+  const worksheet = XLSX.utils.aoa_to_sheet(dataWithoutHeaders);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Лист1');
+  XLSX.writeFile(workbook, 'table.xlsx');
 }
 </script>
 
