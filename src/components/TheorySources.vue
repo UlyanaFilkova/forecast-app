@@ -9,15 +9,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import Tabs from '@/components/Tabs.vue'
 import LinearRegression from './Theory/LinearRegression.vue'
 import ArimaMethod from './Theory/ArimaMethod.vue'
 import RandomForest from './Theory/RandomForest.vue'
 import KnnMethod from './Theory/KnnMethod.vue'
+import ForecastExamples from './Theory/ForecastExamples.vue'
 
-const tabs = ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN']
-const components = [LinearRegression, ArimaMethod, RandomForest, KnnMethod]
+const tabs = ['Линейная регрессия', 'ARIMA', 'Случайные леса', 'KNN', 'Примеры']
+const components = [LinearRegression, ArimaMethod, RandomForest, KnnMethod, ForecastExamples]
 </script>
 
 <style scoped>
