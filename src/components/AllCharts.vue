@@ -57,11 +57,19 @@ const chartData = computed(() => {
 
   const sortedMethods = methodOrder.filter((method) => method in props.forecastData);
 
+  const colors = {
+    'Linear Regression': { backgroundColor: 'rgba(255, 140, 0, 0.2)', borderColor: 'rgba(255, 140, 0, 1)' }, // Темно-синий
+    'ARIMA': { backgroundColor: 'rgba(200, 0, 0, 0.2)', borderColor: 'rgba(200, 0, 0, 1)' }, // Темно-красный
+    'Random Forest': { backgroundColor: 'rgba(0, 0, 139, 0.2)', borderColor: 'rgba(0, 0, 139, 1)' }, // Темно-зеленый
+    'KNN':  { backgroundColor: 'rgba(0, 180, 0, 0.2)', borderColor: 'rgba(0, 180, 0, 1)' }// Темно-желтый
+  };
+
   sortedMethods.forEach((method) => {
+    const color = colors[method] || { backgroundColor: 'rgba(200, 200, 200, 0.2)', borderColor: 'rgba(200, 200, 200, 1)' };
     datasets.push({
       label: method,
-      backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`,
-      borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+      backgroundColor: color.backgroundColor,
+      borderColor: color.borderColor,
       fill: true,
       data: [...Array(props.historicalData.length - 1).fill(null), props.historicalData.at(-1), ...props.forecastData[method]],
       yAxisID: 'y',
