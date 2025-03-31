@@ -60,7 +60,7 @@ const chartData = computed(() => {
   sortedMethods.forEach((method) => {
     datasets.push({
       label: method,
-      backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`,
+      backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`,
       borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
       fill: true,
       data: [...Array(props.historicalData.length - 1).fill(null), props.historicalData.at(-1), ...props.forecastData[method]],
