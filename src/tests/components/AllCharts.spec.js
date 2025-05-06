@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import AllCharts from '@/components/AllCharts.vue'
 import { Line } from 'vue-chartjs'
 
-// Мокируем компонент Line (это компонент графика)
 vi.mock('vue-chartjs', () => ({
   Line: vi.fn().mockName('LineChart')
 }))
@@ -11,7 +10,6 @@ vi.mock('vue-chartjs', () => ({
 describe('AllCharts.vue', () => {
   let wrapper
 
-  // Данные для тестирования
   const historicalData = [10, 20, 30, 40, 50]
   const forecastData = {
     ARIMA: [60, 70, 80],
@@ -25,7 +23,6 @@ describe('AllCharts.vue', () => {
   }
 
   beforeEach(() => {
-    // Монтируем компонент перед каждым тестом с передачей данных
     wrapper = mount(AllCharts, {
       props: {
         historicalData,
@@ -35,26 +32,21 @@ describe('AllCharts.vue', () => {
     })
   })
 
-  // 1. Проверка, что компонент LineChart отрисовывается
   it('рендерит график', () => {
     const lineChart = wrapper.findComponent(Line)
     expect(lineChart.exists()).toBe(true)
   })
 
-  // 2. Проверка, что данные для графика правильно вычисляются
   it('правильно вычисляет данные для графика', () => {
     const chartData = wrapper.vm.chartData
 
-    // Проверяем, что метки исторических данных правильные
     expect(chartData.labels.length).toBe(historicalData.length + forecastData['ARIMA'].length)
     expect(chartData.labels.slice(0, historicalData.length)).toEqual(['1', '2', '3', '4', '5'])
 
-    // Проверяем, что исторические данные попадают в datasets
     const historicalDataset = chartData.datasets.find((dataset) => dataset.label === 'Исторические данные')
     expect(historicalDataset).toBeDefined()
     expect(historicalDataset.data).toEqual(historicalData)
 
-    // Проверяем, что прогнозы добавлены в datasets
     Object.keys(forecastData).forEach((method) => {
       const forecastDataset = chartData.datasets.find((dataset) => dataset.label === method)
       expect(forecastDataset).toBeDefined()
@@ -62,15 +54,13 @@ describe('AllCharts.vue', () => {
     })
   })
 
-  // 3. Проверка, что методы сортируются в правильном порядке
   it('сортирует методы прогнозирования в правильном порядке', () => {
     const chartData = wrapper.vm.chartData
 
     const methodOrder = ['Linear Regression', 'ARIMA', 'Random Forest', 'KNN']
     const datasetLabels = chartData.datasets.map((dataset) => dataset.label)
 
-    // Проверяем, что порядок методов в datasets соответствует заданному порядку
-    const forecastMethods = datasetLabels.slice(1) // Пропускаем исторические данные
+    const forecastMethods = datasetLabels.slice(1)
     expect(forecastMethods).toEqual(methodOrder)
   })
 
@@ -90,7 +80,6 @@ describe('AllCharts.vue', () => {
     })
   })
 
-  // 5. Проверка, что компонент правильно обновляется при изменении входных данных
   it('обновляется при изменении входных данных', async () => {
     const newHistoricalData = [60, 70, 80, 90, 100]
     const newForecastData = {
