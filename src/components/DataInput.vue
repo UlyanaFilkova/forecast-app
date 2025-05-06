@@ -326,4 +326,8 @@ select:focus {
 span{
   color: #b13bff;
 }
+
+.forecast-days label{
+  margin-right: 10px;
+}
 </style>

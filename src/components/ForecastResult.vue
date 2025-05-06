@@ -4,15 +4,16 @@
   <Tabs :tabs="forecastMethods" v-model:currentTab="currentTab">   </Tabs>
     <div class="chart-options-container">
       <div class="tabs">
-
-        <BasicButton
-          v-for="option in chartTypes"
-          :key="option.value"
-          :class="{ active: chartType === option.value }"
-          @click="chartType = option.value"
-        >
-          {{ option.label }}
-        </BasicButton>
+        <div class="buttons-container">
+          <BasicButton
+            v-for="option in chartTypes"
+            :key="option.value"
+            :class="{ active: chartType === option.value }"
+            @click="chartType = option.value"
+          >
+            {{ option.label }}
+          </BasicButton>
+        </div>
       </div>
 
       <div class="buttons-container">
@@ -172,6 +173,7 @@ const downloadExcel = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 
@@ -183,7 +185,7 @@ const downloadExcel = () => {
 
 .buttons-container {
   display: flex;
-  gap: 30px;
+  gap: 20px;
 }
 
 h2 {

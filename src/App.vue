@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div class="inner-app">
     <h1>Прогнозирование данных</h1>
     <DataInput @data-submitted="handleDataSubmitted" />
     <Loader v-if="isLoading" />
@@ -41,7 +41,33 @@ const handleDataSubmitted = async (forecastDays) => {
 </script>
 
 <style>
-#app {
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('@/assets/math-background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: brightness(0.4);
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+}
+
+.inner-app{
   max-width: 850px;
   margin: 0 auto;
   padding: 20px;

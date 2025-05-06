@@ -29,6 +29,9 @@ const components = [LinearRegression, ArimaMethod, RandomForest, KnnMethod, Fore
   margin-bottom: 20px;
 }
 
+h2{
+  margin-top: 50px;
+}
 h2,
 p {
   color: #333;
