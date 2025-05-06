@@ -43,7 +43,7 @@ describe('TableModal.vue', () => {
     expect(rowRadio.element.checked).toBe(true)
 
     const selectOptions = wrapper.findAll('#numberSelected option')
-    expect(selectOptions.length).toBe(2) // т.к. выбрано "row" => 2 строки
+    expect(selectOptions.length).toBe(2)
   })
 
   it('испускает событие close при нажатии на ×', async () => {
@@ -60,10 +60,9 @@ describe('TableModal.vue', () => {
       props: basicProps
     })
 
-    // Выбор значения
-    await wrapper.find('#row').setValue() // направление — строка
-    await wrapper.find('#numberSelected').setValue('2') // номер строки — 2
-    await wrapper.find('#skipCellsSelect').setValue('1') // отступ — 1
+    await wrapper.find('#row').setValue()
+    await wrapper.find('#numberSelected').setValue('2')
+    await wrapper.find('#skipCellsSelect').setValue('1')
 
     await wrapper.find('button').trigger('click')
 

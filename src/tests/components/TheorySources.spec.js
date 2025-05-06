@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi } from 'vitest'
 import TheorySources from '@/components/TheorySources.vue'
 
-// Заглушки для вложенных компонентов
 vi.mock('@/components/Tabs.vue', () => ({
   default: {
     template: '<div><slot :currentTab="0" /></div>',
