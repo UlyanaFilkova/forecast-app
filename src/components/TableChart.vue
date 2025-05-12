@@ -16,10 +16,6 @@
       </tr>
       </tbody>
     </table>
-    <div class="buttons">
-      <button @click="downloadPDF">Скачать PDF</button>
-      <button @click="downloadExcel">Скачать Excel</button>
-    </div>
   </div>
 </template>
 
@@ -86,12 +82,13 @@ td {
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #bdd6ef;
 }
 
 .buttons {
   display: flex;
-  gap: 10px;
+  gap: 20px;
+  margin-top: 20px;
 }
 
 button {

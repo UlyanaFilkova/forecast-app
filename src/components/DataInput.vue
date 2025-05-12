@@ -5,7 +5,7 @@
       <textarea
         v-model="dataInput"
         @change="handleTextAreaUpload"
-        placeholder="Введите исторические данные, разделенные пробелами"
+        placeholder="Введите исторические данные"
       ></textarea>
       <span v-if="textInputError" class="error">{{ textInputError }}</span>
 
